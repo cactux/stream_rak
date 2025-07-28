@@ -1,5 +1,21 @@
-# import os, html, datetime, time, joblib
+import os, html, datetime, time, joblib
 import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import svm, model_selection, preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.svm import LinearSVC
+from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import make_classification
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
+from sklearn.feature_selection import SelectKBest
+from sklearn.datasets import make_classification
+from sklearn.metrics import accuracy_score, classification_report
 
 
 st.set_page_config(layout="wide")
@@ -40,3 +56,5 @@ if page == "DataVizualization" :
 
 if page == "Modélisation" : 
   st.write("## Modélisation")
+
+st.write("2025-07-28 1620")
