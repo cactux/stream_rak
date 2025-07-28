@@ -57,4 +57,4 @@ if page == "DataVizualization" :
 if page == "Modélisation" : 
   st.write("## Modélisation")
 
-st.write("2025-07-28 1620")
+st.write("2025-07-28 1624")
