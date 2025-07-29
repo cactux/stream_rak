@@ -55,7 +55,7 @@ y.index.name = "index"
 # X_test = X_test.select_dtypes(include = ['int', 'float'])
 
 st.set_page_config(layout="wide")
-st.title("Projet de classification multimodale de données produits - Rakuten France")
+st.title("Projet de classification multimodale de données produits - Rakuten France test test")
 st.sidebar.title("Sommaire")
 pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Conclusion", "Page de test"]
 page=st.sidebar.radio("Aller vers", pages)
