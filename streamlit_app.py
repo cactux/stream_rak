@@ -57,7 +57,7 @@ y.index.name = "index"
 st.set_page_config(layout="wide")
 st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation", "Démo", "Conclusion", "Page de test"]
+pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Conclusion", "Page de test"]
 page=st.sidebar.radio("Aller vers", pages)
 
 
@@ -255,101 +255,53 @@ Le X_train enrichi est stocké dans data/processed.
 '''
 
 
-########################################################## Modélisation ###########################################################
-if page == "Modélisation" : 
-  st.write("## Modélisation")
-  # fig = plt.figure()
-  # sns.countplot(x = 'Survived', data = df)
-  # st.pyplot(fig)
-  # fig = plt.figure()
-  # sns.countplot(x = 'Sex', data = df)
-  # plt.title("Répartition du genre des passagers")
-  # st.pyplot(fig)
+########################################################## Modélisation meta-data ###########################################################
+if page == "Modélisation - meta-data" : 
+  st.write("## Modélisation sur méta-données")
+  '''Les modèles suivants ont été testés :
+- LinearSVC
+- SGDClassifier
+- KNN
+- SVC
+- GradientBoostingClassifier
+- GaussianNB
+- XGBoost
+- RandomForest
 
-  # fig = plt.figure()
-  # sns.countplot(x = 'Pclass', data = df)
-  # plt.title("Répartition des classes des passagers")
-  # st.pyplot(fig)
+Plusieurs phases ont eu lieu : 
+1. Utilisation basique du modèle
+2. Ajout de méta-données comme celles provenant de l'OCR (uniquement le nombre de caractères reconnus dans une image)
+3. Test de RandomOverSampler RandomUnderSampler
+4. Test de GirdSearchCV et de RandomRandomizedSearchCV
+5. Unification avec StackingClassifier
 
-  # fig = sns.displot(x = 'Age', data = df)
-  # plt.title("Distribution de l'âge des passagers")
-  # st.pyplot(fig)
-  # fig = plt.figure()
-  # sns.countplot(x = 'Survived', hue='Sex', data = df)
-  # st.pyplot(fig)
+Les scores ont généralement augmenté au fur et à mesure, et varient généralement de 10 à 35 %. Ces chiffres sont à comparer avec :
+- 3.70 % : l'aléatoire car il y a 27 catégories
+- 12.02 % : le poids de la classe la plus importante, si on ne prédisait qu'elle.
 
-  # fig = sns.catplot(x='Pclass', y='Survived', data=df, kind='point')
-  # st.pyplot(fig)
-
-  # fig = sns.lmplot(x='Age', y='Survived', hue="Pclass", data=df)
-  # st.pyplot(fig)
-
-  # fig, ax = plt.subplots()
-  # sns.heatmap(df.select_dtypes('number').corr(), ax=ax, cmap='RdBu_r')
-  # st.write(fig)
+TODO : insérer tableau
+  '''
 
 
-########################################################## Démonstration ###########################################################
-if page == "Démo" : 
-  st.write("## Démonstration")
-  # df = df.drop(['PassengerId', 'Name', 'Ticket', 'Cabin'], axis=1)
-  # y = df['Survived']
-  # X_cat = df[['Pclass', 'Sex',  'Embarked']]
-  # X_num = df[['Age', 'Fare', 'SibSp', 'Parch']]
-  # for col in X_cat.columns:
-  #   X_cat[col] = X_cat[col].fillna(X_cat[col].mode()[0])
-  # for col in X_num.columns:
-  #   X_num[col] = X_num[col].fillna(X_num[col].median())
-  # X_cat_scaled = pd.get_dummies(X_cat, columns=X_cat.columns)
-  # X = pd.concat([X_cat_scaled, X_num], axis = 1)
 
-  # from sklearn.model_selection import train_test_split
-  # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+########################################################## Modélisation images ###########################################################
+if page == "Modélisation - images" : 
+  st.write("## Modélisation sur images")
 
-  # from sklearn.preprocessing import StandardScaler
-  # scaler = StandardScaler()
-  # X_train[X_num.columns] = scaler.fit_transform(X_train[X_num.columns])
-  # X_test[X_num.columns] = scaler.transform(X_test[X_num.columns])
 
-  # from sklearn.ensemble import RandomForestClassifier
-  # from sklearn.svm import SVC
-  # from sklearn.linear_model import LogisticRegression
-  # from sklearn.metrics import confusion_matrix
 
-  # def prediction(classifier):
-  #     if classifier == 'Random Forest':
-  #         clf = RandomForestClassifier()
-  #     elif classifier == 'SVC':
-  #         clf = SVC()
-  #     elif classifier == 'Logistic Regression':
-  #         clf = LogisticRegression()
-  #     clf.fit(X_train, y_train)
-  #     return clf
+########################################################## Modélisation textes ###########################################################
+if page == "Modélisation - textes" : 
+  st.write("## Modélisation sur textes")
 
-  # def scores(clf, choice):
-  #     if choice == 'Accuracy':
-  #         return clf.score(X_test, y_test)
-  #     elif choice == 'Confusion matrix':
-  #         return confusion_matrix(y_test, clf.predict(X_test))
 
-  # choix = ['Random Forest', 'SVC', 'Logistic Regression']
-  # option = st.selectbox('Choix du modèle', choix)
-  # st.write('Le modèle choisi est :', option)
-  # clf = prediction(option)
-  # import joblib
-  # joblib.dump(clf, "model.joblib")
-  # import pickle
-  # pickle.dump(clf, open("model.pickle", 'wb'))
-  # display = st.radio('Que souhaitez-vous montrer ?', ('Accuracy', 'Confusion matrix'))
-  # if display == 'Accuracy':
-  #     st.write(scores(clf, display))
-  # elif display == 'Confusion matrix':
-  #     st.dataframe(scores(clf, display))
 
 
 ########################################################## Conclusion ###########################################################
 if page == "Conclusion" : 
   st.write("## Conclusion")
+
+
 
 ########################################################## Page de test ###########################################################
 if page == "Page de test" : 
@@ -369,4 +321,4 @@ if page == "Page de test" :
   '''
   st.code(''' import streamlit ''', language='python')
 
-st.write("2025-07-29 1125")
+# st.write("2025-07-29 1125")
