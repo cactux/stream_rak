@@ -57,26 +57,98 @@ y.index.name = "index"
 st.set_page_config(layout="wide")
 st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation", "Démo", "Conclusion", "Test"]
+pages=["Introduction", "Exploration des données", "Modélisation", "Démo", "Conclusion", "Page de test"]
 page=st.sidebar.radio("Aller vers", pages)
 
+
+########################################################## Introduction ###########################################################
 if page == "Introduction" : 
   st.write("## Introduction")
   '''
-  Les données viennent de la plateforme Challenge Data, organisée par l’ENS. Elles sont obtenues depuis https://challengedata.ens.fr/challenges/35 et ont été fournies par la société Rakuten. Cette société édite un site web de commerce en ligne où les utilisateurs peuvent vendre eux-mêmes leurs objets neufs, d’occasion ou reconditionnés.
+  Dans le cadre de la formation Data Scientist, suivie chez DataScientest en mode cursus continu promotion NOV24, nous avons mené un projet de Data Science.
+  Les données viennent de la plateforme Challenge Data, organisée par l'ENS. Elles sont obtenues depuis https://challengedata.ens.fr/challenges/35 et ont été fournies par la société Rakuten.
+  Cette société édite un site web de commerce en ligne où les utilisateurs peuvent vendre eux-mêmes leurs objets neufs, d'occasion ou reconditionnés. Ces produits sont rangés dans des catégories.
 
-À partir de données texte et image sur plus de 84 000 produits, l’objectif est de déterminer le bon type du produit. Les données sont à priori très spartiates :
-- 1 titre plutôt court, disponible pour 100 % des entrées.
-- 1 description pouvant être plus longue, présente pour environ 2 tiers des entrées.
-- 1 fichier image JPEG.
-- Le type de produit, parmi une liste de 27 possibles.
+  ### Objectif
 
-La catégorie des 84 000 produits est connue : nous avons de **données labellisées** : il s’agit d’un sujet de machine learning supervisé. Il faut déterminer le type d’un produit : il s’agit d’un problème de **classification**.
+  À partir de données texte et image sur plus de 84 000 produits, l'objectif est de déterminer le bon type du produit. Les données fournies sont à priori très spartiates :
+  - 1 titre plutôt court, disponible pour 100 % des entrées : *designation*.
+  - 1 description pouvant être plus longue, présente pour environ 2 tiers des entrées : *description*
+  - 1 fichier image JPEG.
+  - Le code du type de produit, parmi une liste de 27 possibles.
 
+  La catégorie des 84 000 produits est connue : nous avons des **données labellisées** : il s'agit d'un sujet de machine learning supervisé.
+  Il faut déterminer le type d'un produit : il s'agit d'un problème de **classification**.
 
-  TODO : insérer ici des exemples d'images et de texte ?
+  ### Quelques exemples de données :
+
+  Avant de plonger dans l'analyse exploratoire des données, voici quelques exemples :
+
+  - Produit 70344272 : (imageid = 864552991)
+    - Designation = Esprit D Hurlorage La Traque D Illidan Wow Vf Epique
+    - Description = nan
+  - Produit 4165063798 : (imageid = 1305321064)
+    - Designation = Modèle De Voituregpm Racing Aluminum Front/Rear Adjustable Spring Damper For Ttaxxas Trx-4 Rc Car Hgf90712001gy-Générique
+    - Description = GPM Racing Aluminum Front/Rear Adjustable Spring Damper For TTAXXAS TRX-4 Rc Car  Description?  Outer diameter of the spring coil of the spring shock cylinder shock shaft are all made thicker   Reduce the friction and absorb the pressure during driving so that the car can be more balanced and improves the crawling   outer diameter of spring damper from original 16mm increase to 17mm    The cylinder of the shock absorber from original 11mm to 12.8mm   Spring coil from original 1.1mm increased to 1.2mm   Shock shaft from 3mm increased to 3.2mm  We use a quality light weight high tensile strength aluminum 6061 T6 and is then anodized with scratch resistant colors   Package include: 2xSTAINLESS STEEL ROUND HEAD SCREWS 3x23mm 2xSTAINLESS STEEL ROUND HEAD SCREWS 3x27mm 2xShock Absorbers
+  - Produit 2231547157 : (imageid = 1132713850)
+    - Designation = Alsace - France - Plaquette Depliante Touristique
+    - Description = nan
+  - Produit 1418192832 : (imageid = 1148427461)
+    - Designation = L'univers Illustre - Trente Deuxieme Annee N° 1790 - Paris La Vente De La Galerie Secrétan : Adjudication De L'angelus De J.-F. Millet (Dessin D'après Nature De M.Paul Destez)
+    - Description = Journal hebdomadaire. Sommaire : la catastrophe d'Aubervilliers - Paris - Inauguration de la statue de la liberté éclairant le monde à Grenelle dessin d'après nature de M.Guilliod) - Paris - Exposition universelle : entre quatre et cinq promenade en fauteuil roulant (dessin d'après nature de M.Paul Destez) - Les courses de taureau en Espagne - A l'exposition par ci par là - Les manoeuvres navales dans la méditerranée  La défense de Toulon : Exercices de tir en mer par la batterie du polygone (dessin d'après nature de M.Riou) - Le cuirassé grade-côte La fusée - La catastrophe d'Aubervilliers (dessin d'après nature de M.Paul Merwaert).
   '''
+  st.image('rakuten-exemple-4.jpg')
 
+
+########################################################## Exploration des données ###########################################################
+if page == "Exploration des données" : 
+  st.write("## Exploration des données + augmentation")
+  '''
+  Les données fournies sont :
+- 3 fichiers CSV :
+  - X_test_update.csv : 13 813 lignes
+  - X_train_update.csv : 84 920 lignes
+  - Y_train_CVw08PX.csv : 84 917 lignes
+- 1 dossier images avec 2 sous-dossiers :
+  - images/image_test : 13 812 images au format JPG
+  - images/image_train : 84 916 images au format JPG
+
+Pour le projet DataScientest, nous utiliserons les fichiers CSV `X_train_update.csv` et `Y_train_CVw08PX.csv`, ainsi que les images du dossier `image_train`
+(le fichier `X_test_update.csv` et le dossier `image_test` sont utilisés pour participer au challenge).
+
+Les données sont analysées à l'aide de notebooks python et scripts bash, disponibles dans le projet github https://github.com/DataScientest-Studio/NOV24-CDS-RAKUTEN.
+L'analyse des fichiers CSV est dans le fichier Rapport exploration des données - Projet Rakuten.xlsx basé sur le template fourni.
+
+### Fichier X_train_update.csv
+infos :\n
+Index: 84916 entries, 0 to 84915\n
+Data columns (total 4 columns):\n
+` #   Column       Non-Null Count  Dtype `\n
+`---  ------       --------------  ----- `\n
+` 0   designation  84916 non-null  object`\n
+` 1   description  84916 non-null  object`\n
+` 2   productid    84916 non-null  int64 `\n
+` 3   imageid      84916 non-null  int64`\n
+
+#### Valeurs NaN
+`designation        0`\n
+`description    29800`\n
+`productid          0`\n
+`imageid            0`\n
+
+Près d’un tiers des lignes ont leur colonne *description* vide.
+
+### Fichier Y_train_CVw08PX.csv 
+Infos :\n
+Index: 84916 entries, 0 to 84915\n
+Data columns (total 1 columns):\n
+` #   Column       Non-Null Count  Dtype`\n
+`---  ------       --------------  -----`\n
+` 0   prdtypecode  84916 non-null  int64`\n
+
+On a autant de lignes que dans le fichier X_train_update.csv, ce fichier contient la cible à prédire : le code catégorie (type de produit).
+
+'''
   st.write("#### Features (X)")
   '''
   Les colonnes *productid* et *imageid* ne portent pas de signification, ce sont seulement des identifiants.
@@ -90,11 +162,7 @@ La catégorie des 84 000 produits est connue : nous avons de **données labellis
   st.dataframe(y.head(5))
   # st.dataframe(y.describe())
 
-
-if page == "Exploration des données" : 
-  st.write("## Exploration des données + augmentation")
   # Nombre de produits par catégorie
-  ################################################################################
   X['designation_len'] = X['designation'].str.len()
   X['description_len'] = X['description'].str.len()
   nb_categories = y["prdtypecode"].nunique()
@@ -115,6 +183,35 @@ if page == "Exploration des données" :
   st.image(buf)
 
 
+  st.write("Répartition de la longueur des désignations.")
+  fig, ax = plt.subplots(figsize = (12,6))
+  ax.set_title('Répartition de la longueur des designation')
+  # fig = plt.figure(figsize=(10, 4))
+  ax.set_ylabel("Nb d'occurences")
+  ax.set_xlabel('Longueur en caractères')
+  plt.xticks(ticks=range(10, 250, 10))#, labels = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
+  plt.hist(X["designation_len"], 50, width=4)
+  # st.pyplot(fig)
+  buf = BytesIO()
+  fig.savefig(buf, format="png")
+  st.image(buf)
+
+
+  st.write("Répartition de la longueur des descriptions.")
+  fig, ax = plt.subplots(figsize = (12,6))
+  ax.set_title('Répartition de la longueur des descriptions')
+  # fig = plt.figure(figsize=(10, 4))
+  ax.set_ylabel("Nb d'occurences")
+  ax.set_xlabel('Longueur en caractères')
+  plt.xticks(rotation=45)
+  plt.hist(X.loc[X.description_len > 0]["description_len"], 50, width=100)
+  # st.pyplot(fig)
+  buf = BytesIO()
+  fig.savefig(buf, format="png")
+  st.image(buf)
+
+
+########################################################## Modélisation ###########################################################
 if page == "Modélisation" : 
   st.write("## Modélisation")
   # fig = plt.figure()
@@ -148,6 +245,7 @@ if page == "Modélisation" :
   # st.write(fig)
 
 
+########################################################## Démonstration ###########################################################
 if page == "Démo" : 
   st.write("## Démonstration")
   # df = df.drop(['PassengerId', 'Name', 'Ticket', 'Cabin'], axis=1)
@@ -205,15 +303,19 @@ if page == "Démo" :
   #     st.dataframe(scores(clf, display))
 
 
+########################################################## Conclusion ###########################################################
 if page == "Conclusion" : 
   st.write("## Conclusion")
 
-if page == "Test" : 
+########################################################## Page de test ###########################################################
+if page == "Page de test" : 
+  st.write("## Page de test")
   st.write("# titre 1")
   st.write("## titre 2")
   st.write("### titre 3")
   st.write("#### titre 4")
   st.write("##### titre 5")
+  st.write("###### titre 6")
   '''
   Du texte juste mis entre guillemets. Ici *entre astérisques*.
   - des tirets
