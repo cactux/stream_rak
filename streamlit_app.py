@@ -169,7 +169,10 @@ On a autant de lignes que dans le fichier X_train_update.csv, ce fichier contien
   st.write(f"Il y a {nb_categories} catégories..")
   y_count = y.groupby(["prdtypecode"])["prdtypecode"].count().sort_values(ascending=False)
   # display(y_count)
-  st.write("Le nombre de produits par catégorie est très variable, généralement de 800 à 5000 avec 1 catégorie contenant plus de 10000 articles.")
+  '''
+  Le nombre de produits par catégorie est très variable, généralement de 800 à 5000 avec 1 catégorie contenant plus de 10000 articles.
+  La catégorie ayant le plus de produits en a environ le double de chacune des 7 catégories suivantes : c’est à surveiller pour l'entraînement des modèles.
+  De même, les 6 catégories ayant le moins de produits en ont environ 5 fois moins.'''
   fig, ax = plt.subplots(figsize = (12,6))
   ax.set_title('Nombre de produits par catégorie')
   # fig = plt.figure(figsize=(10, 4))
@@ -184,6 +187,7 @@ On a autant de lignes que dans le fichier X_train_update.csv, ce fichier contien
 
 
   st.write("Répartition de la longueur des désignations.")
+  '''Le champ 'désignation' contient tout le temps du texte, le plus court faisant 11 caractères.'''
   fig, ax = plt.subplots(figsize = (12,6))
   ax.set_title('Répartition de la longueur des designation')
   # fig = plt.figure(figsize=(10, 4))
@@ -209,6 +213,46 @@ On a autant de lignes que dans le fichier X_train_update.csv, ce fichier contien
   buf = BytesIO()
   fig.savefig(buf, format="png")
   st.image(buf)
+
+  '''
+  ### Analyse des images
+  Un script bash est créé pour analyser les images :
+  - Elles sont toutes au format JPEG, de taille 500 x 500 pixels.
+  - Les tailles de fichiers, en octets, sont enregistrées pour éventuellement enrichir notre dataset.
+
+  Cependant en en visionnant quelques-unes, on constate que beaucoup sont plus petites : elles ont une marge blanche sur 2 ou 4 des côtés. Un script python détermine leur “vraies” dimensions et enrichit notre jeu de données.
+
+  Grâce à ces nouvelles données une analyse de la proportion “utile” des images dans les 500x500 pixels disponibles est effectuée. L’histogramme de cette proportion, comprise entre 0 et 1 et présentée ci-dessous:
+  '''
+  st.image('distribution-ratio-images.jpg', width=600)
+  '''On constate un pic de l’histogramme sur la valeur 1, qui indique qu’une proportion significative des images est de forme carrée ou remplit entièrement les 500x500 pixels disponibles.
+  On constate également un pic à une valeur proche de 0.75 qui doit correspondre à un format spécifique d’image très représenté mais qui n’est pas expliqué à ce stade de l’étude.
+
+Une deuxième analyse est effectuée sur le ratio largeur/hauteur de la partie utile des images.
+L’histogramme de ces valeurs, ramenées à une échelle log10, montre une distribution proche d’une loi normale, centrée sur 0, qui indique qu’en moyenne la partie utile des images a un aspect carré.
+'''
+  st.image('distribution-ratio-images-log10.jpg', width=600)
+  '''#### Analyse des doublons images
+
+Afin de pouvoir analyser rapidement la présence de doublons d’images, un md5sum des fichiers images est produit et ajouté à la base de données images.
+
+L’analyse de ce md5sum montre que 3264 fichiers images sont au moins présents  à l’identique deux fois dans le jeu de données img_train.
+
+En outre, le maximum de nombre de valeurs distinctes pour chaque md5sum est de 1, l'identifiant produit est donc identique pour les images identiques, le jeu de données est donc cohérent sur ce point.
+
+## Enrichissement des données
+Dans X_train, ajout des informations suivantes :
+- designation_lang : langue détectée par la bibliothèque langdetect. Ne semble pas très fiable, rien que dans les 1ère ligne je vois des erreurs.
+- description_lang : langue détectée par la bibliothèque langdetect
+- lang : langue détectée par la bibliothèque langdetect sur la concaténation de designation + description
+- designation_len : en nb de caractères
+- description_len : en nb de caractères
+- image_real_width : en pixels
+- image_real_height : en pixels
+- image_ratio : largeur / hauteur (width / height)
+
+Le X_train enrichi est stocké dans data/processed.
+'''
 
 
 ########################################################## Modélisation ###########################################################
