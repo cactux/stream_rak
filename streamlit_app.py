@@ -55,9 +55,9 @@ y.index.name = "index"
 # X_test = X_test.select_dtypes(include = ['int', 'float'])
 
 st.set_page_config(layout="wide")
-st.title("Projet de classification multimodale de données produits - Rakuten France test test")
+st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Conclusion", "Page de test"]
+pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Démonstration", "Conclusion", "Page de test"]
 page=st.sidebar.radio("Aller vers", pages)
 
 
@@ -290,11 +290,17 @@ if page == "Modélisation - images" :
 
 
 
+
 ########################################################## Modélisation textes ###########################################################
 if page == "Modélisation - textes" : 
   st.write("## Modélisation sur textes")
 
 
+
+
+########################################################## Démonstration ###########################################################
+if page == "Démonstration" : 
+  st.write("## Démonstration")
 
 
 ########################################################## Conclusion ###########################################################
