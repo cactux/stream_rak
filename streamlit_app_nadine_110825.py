@@ -492,6 +492,12 @@ best["best_loss"] = min_loss''')
   st.code('''lr_plateau = keras.callbacks.ReduceLROnPlateau(monitor = "val_loss", patience = 5, factor = 0.5, verbose = 0,
 mode = "min")''')
 
+  st.write("#### **`Courbes de la métrique de précision`**")
+  st.image("DNN_Precision Curves.png")
+  
+  st.write("#### **`Courbes de la fonction de perte`**")
+  st.image("DNN_Loss Curves.png")
+  
   st.write("#### **`Rapport de classification`**")
   st.image("DNN_Classification Report.png")
   
