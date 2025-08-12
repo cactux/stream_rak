@@ -72,7 +72,7 @@ lang_dist.index.name = "**langue**"
 st.set_page_config(layout="wide")
 st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Démonstration", "Conclusion", "Page de test"]
+pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Démonstration", "Difficultés et prospective", "Conclusion"]
 page=st.sidebar.radio("Aller vers", pages)
 
 
@@ -510,28 +510,18 @@ if page == "Démonstration" :
   st.write("## Démonstration")
 
 
+########################################################## Difficultés et prospective ###########################################################
+if page == "Difficultés et prospective" : 
+  st.write("## Difficultés et prospective")
+  '''
+  Nous avons naturellement rencontrés plusieurs difficultés au cours de ce projet.
+
+  1. La plus importante concerne les temps de calcul : pour le traitement des images il faut de la capacité GPU et nos PC ne sont pas bien adaptés.
+  Nous avons utilisé **google collab** pour avoir une capacité de calcul suffisante. Voici quelques exemples de temps de calcul: TODO compléter ?
+  '''
+
+
 ########################################################## Conclusion ###########################################################
 if page == "Conclusion" : 
   st.write("## Conclusion")
 
-
-
-########################################################## Page de test ###########################################################
-if page == "Page de test" : 
-  st.write("## Page de test")
-  st.write("# titre 1")
-  st.write("## titre 2")
-  st.write("### titre 3")
-  st.write("#### titre 4")
-  st.write("##### titre 5")
-  st.write("###### titre 6")
-  '''
-  Du texte juste mis entre guillemets. Ici *entre astérisques*.
-  - des tirets
-  - encore des tirets
-
-  Du code python :
-  '''
-  st.code(''' import streamlit ''', language='python')
-
-# st.write("2025-07-29 1125")
