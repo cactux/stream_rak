@@ -667,10 +667,24 @@ if page == "Difficultés et prospective" :
 
   1. La plus importante concerne les temps de calcul : pour le traitement des images il faut de la capacité GPU et nos PC ne sont pas bien adaptés.
   Nous avons utilisé **google collab** pour avoir une capacité de calcul suffisante. Voici quelques exemples de temps de calcul: TODO compléter ?
+  2. Les outils à notre disposition en tant que DataScientist sont très nombreux, et les techniques ou méthodes pour affiner leur usage également. On arrive à une quantité globale de tests ou calculs possible énorme, il faut choisir, donc renoncer à certains par limite de temps.
   '''
 
 
 ########################################################## Conclusion ###########################################################
 if page == "Conclusion" : 
   st.write("## Conclusion")
+  '''
+  Ce projet nous a permis d'appliquer concrètement de très nombreuses connaissances acquises pendant le cursus DataScientist de DataScientest.
+
+  Nous avons pu :
+  - Appliquer les premiers modèles de ML sur les métadonnées, et élargir à d'autres modèles cherchés sur le net.
+  - Tester et consolider en utilisant RandomOverSampler, RandomUnderSampler, StackingClassifier, RandomizedSearchCV, etc
+  - Analyser des images avec un CNN classique puis un modèle VGG-16.
+  - Analyser des textes avec NLTK.
+  - Comparer les ressources nécessaires et résultats de ces différentes approches.
+  
+  Nous avons beaucoup appris par tests / erreurs / corrections jusqu'à arriver à un résultat qui nous semble satisfaisant.
+
+  '''
 
