@@ -25,6 +25,7 @@ from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score, classification_report
 from imblearn import over_sampling
 from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
 
 DATA_DIR_RAW = ""
 DATA_DIR_PROCESSED = "data/processed"
@@ -72,7 +73,7 @@ lang_dist.index.name = "**langue**"
 st.set_page_config(layout="wide")
 st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Démonstration", "Difficultés et prospective", "Conclusion"]
+pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Fusion par vote", "Démonstration", "Difficultés et prospective", "Conclusion"]
 page=st.sidebar.radio("Aller vers", pages)
 
 
@@ -361,6 +362,118 @@ TODO : insérer tableau
 ########################################################## Modélisation images ###########################################################
 if page == "Modélisation - images" : 
   st.write("## Modélisation sur images")
+  st.write("### Organisation des images")
+  
+  '''
+En premier lieu nous créons un jeu de données qui sera utilisé pour « train + validation », lors de la phase d’entraînement, et un jeu de données « test » pour l’évaluation des performances.
+
+Compte tenu du fait que le jeu de données est deséquilibré mais également que nos capacités de calcul sont limitées,
+  un sous-échantillonnage du jeu de données est effectué de façon à réduire le nombre d'échantillons par classe à
+  celui de la classe la moins représentée soit 764 soit 20628 images au total
+'''
+  
+  X_train_df = pd.read_csv(os.path.join(DATA_DIR_RAW, "X_train_update.csv"), index_col=0)
+  Y_train_df = pd.read_csv(os.path.join(DATA_DIR_RAW, "Y_train_CVw08PX.csv"), index_col=0)
+
+
+  st.write('Classes échantillons init:',Y_train_df.value_counts().sort_index())
+
+  rUs = RandomUnderSampler()
+  X_train_df_ru, Y_train_df_ru = rUs.fit_resample(X_train_df, Y_train_df)
+  
+  st.write('Classes échantillons après sous échantillonnage undersampled :', Y_train_df_ru.value_counts().sort_index())
+
+  '''
+  Malgré ce sous-échantillonage pour des raisons de temps de calcul, il a été décidé de réduire d'avantage le jeu de données et de le découpé comme suit:
+  
+  - 300 images par classe pour l'entrainement (train) t+ validation
+  - 60 images par classe pour le test
+  
+  Pour chacun de ces deux jeux de données, l’arborescence des images est organisée avec un répertoire par classe.
+  
+  Les données peuvent ainsi être lues glace à la méthode « image_dataset_from_directory » de « keras.utils ». C’est cette même méthode qui permet de séparer « train »  et « validation » lors du chargement des images.
+  
+  Voici un aperçu des images et du code de classe associé, extrait du jeu train :
+  '''
+
+  st.image("apercu_images_classes.png")
+  
+  
+  st.write("### Stratégie de construction des modèles")
+  
+  '''
+  L'utilisation de Random Forest, prévue initialement pour servir de référence, a été abandonnée du fait de problèmes mémoire
+  liés à l'absence d'option de traitement par lot dans l'implémentation de Random Forest disponible
+  
+  La modélisation a donc été testée sur des CNN qui permettent les traitements par lot. :
+  
+  - Un CNN "from scratch" pour référence :
+  
+  Ce modèle comporte plusieurs couches d'augmentation, et une couche de convolution son architecture est la suivante:
+  '''
+  
+  st.image("architecture_CNN_images_fs.png")
+  
+  '''
+  Nous avons observé lors de l'entrainement que la précision augmentait plus significativement sur le jeu de validation
+  que sur le jeu d'entrainement
+  '''
+  
+  st.image("courbes_learn_CNN_images_fs.png")
+  
+  
+  '''
+  Les résultats obtenus par ce modèle sont peu probant probablement du fait du nombre limité d'images utilisées pour l'entrainement:
+  '''
+  
+  st.image("score_CNN_images_fs_test.png")
+  
+  '''
+  La matrice de confusion est la suivante:
+  '''
+  
+  st.image("confusion_CNN_images_fs_test.png")
+  
+  '''
+  
+  - Un transfert learning basé sur vgg16 CNN :
+  
+  L'objectif est de bénéficier de l'entrainement de vgg16 sur un volume d'images important.
+  Ici, outre les couches d'augmentation, nous avons laissé figées les couches de vgg16 et avons ajouté 3 couches denses
+  en vue de faire évoluer la classification de vgg16 vers celle attendue. L'architecture est la suivante:
+  '''
+  
+  st.image("architecture_CNN_images_tl.png")
+  
+  '''
+  Nous avons observé lors de l'entrainement que la précision augmentait plus significativement sur le jeu de validation
+  que sur le jeu d'entrainement
+  '''
+  
+  st.image("courbes_learn_CNN_images_tl.png")
+  
+  '''
+  Sur le jeu de test, la précision obtenue est de 0.31:
+  '''
+  
+  st.image("score_CNN_images_tl_test.png")
+  
+  '''
+  La matrice de confusion est la suivante:
+  '''
+  
+  st.image("confusion_CNN_images_tl_test.png")
+  
+  '''
+  Contrairement au modèle CNN "from scratch" construit, ici la diagonale de la matrice de confusion commence a être visible.
+  
+  Certes les performances de ce modèle ne sont pas très élevées, mais il commence néanmoins à être exploitable.
+  
+  Un aperçu de résultats de classification sur quelques images est présenté ci-dessous:
+  '''
+  
+  st.image("exemple_appli_CNN_images_tl_test.png")
+
 
 
 
@@ -505,7 +618,23 @@ mode = "min")''')
   st.image("DNN_Heatmap.png")
 
 
-########################################################## Démonstration ###########################################################
+########################################################## Fusion ###########################################################
+if page == "Fusion par vote" : 
+  st.write("## Fusion par vote")
+
+  '''
+  Nous avons vu que plusieurs modèles ont été mis au point pour exploiter le texte, les métadonnées et les images disponibles.
+  L'étape de vote consiste à fusionner ces modèles en vue d'obtenir un modèle fusionné aux performances supérieures à celles du meilleur modèle
+  obtenu préalablement, le modèle de texte Word2Vec-DNN
+
+  Un "hard voting " ne semble pas approprié ici car les performances des modèles modèles sont très hétérogènes.
+
+  Nous implémentons donc un "soft voting"
+
+  L'algorithme de vote est en cours de mise en place.
+  '''
+
+  ########################################################## Démonstration ###########################################################
 if page == "Démonstration" : 
   st.write("## Démonstration")
 
