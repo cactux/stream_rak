@@ -73,7 +73,7 @@ lang_dist.index.name = "**langue**"
 st.set_page_config(layout="wide")
 st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation - meta-data", "Modélisation - images", "Modélisation - textes", "Fusion par vote", "Démonstration", "Difficultés et prospective", "Conclusion"]
+pages=["Introduction", "Exploration des données", "Modélisation - métadonnées", "Modélisation - images", "Modélisation - textes", "Fusion par vote", "Démonstration", "Difficultés et prospective", "Conclusion"]
 page=st.sidebar.radio("Aller vers", pages)
 
 
@@ -289,7 +289,7 @@ L’analyse de ce **md5sum** montre que **3264** fichiers images sont au moins p
 
 En outre, le maximum de nombre de valeurs distinctes pour chaque **md5sum** est de **1**, l'identifiant produit est donc identique pour les images identiques, le jeu de données est donc cohérent sur ce point.
 
-  ## Enrichissement des données - Modélisation exploitant les meta-data
+  ## Enrichissement des données - Modélisation exploitant les métadonnées
 Dans X_train, ajout des informations suivantes :
 - `designation_lang` : langue détectée par la bibliothèque _langdetect_. Ne semble pas très fiable, rien que dans les 1ère ligne je vois des erreurs.
 - `description_lang` : langue détectée par la bibliothèque _langdetect_
@@ -330,32 +330,32 @@ Le X_train enrichi est stocké dans `data/processed`.
 
 
 
-########################################################## Modélisation meta-data ###########################################################
-if page == "Modélisation - meta-data" : 
-  st.write("## Modélisation sur méta-données")
-  '''Dans un premier temps, nous avons appliqué des modèles classiques de Machine Learning sur les méta-données.
+########################################################## Modélisation métadonnées ###########################################################
+if page == "Modélisation - métadonnées" : 
+  st.write("## Modélisation sur métadonnées")
+  '''Dans un premier temps, nous avons appliqué des modèles classiques de Machine Learning sur les métadonnées.
   C'est à dire sur des informations comme les longueurs des champs designation et description, les tailles d'images, le nombre de tags HTML, etc.
   Les modèles utilisés à cette étape n'ont donc pas utilisé directement les images (voir l'étape Modélisation images) ni les textes (voir l'étape Modélisation textes).
   Comme il s'agit d'un problème de classification avec des données labellisées, et comme nous sommes dans le cadre d'un projet devant nous faire apprendre, nous avons testé beaucoup de modèles, y compris certains qui n'auraient probablement pas été choisis dans un cadre professionnel.
   Voici la liste :
-- `LinearSVC`
-- `SGDClassifier`
-- `KNN`
-- `SVC`
-- `GradientBoostingClassifier`
-- `GaussianNB`
-- `XGBoost`
-- `RandomForest`
+  - `LinearSVC`
+  - `SGDClassifier`
+  - `KNN`
+  - `SVC`
+  - `GradientBoostingClassifier`
+  - `GaussianNB`
+  - `XGBoost`
+  - `RandomForest`
 
-Voici un extrait du schéma permettant de faire un premier choix dans les modèles :
+  Voici un extrait du schéma permettant de faire un premier choix dans les modèles :
 
-'''
+  '''
   st.image('model_choice.png', width=600)
 
   '''
   Plusieurs phases ont eu lieu : 
   1. Utilisation basique du modèle
-  2. Ajout de méta-données comme celles provenant de l'**OCR** (uniquement le nombre de caractères reconnus dans une image)
+  2. Ajout de métadonnées comme celles provenant de l'**OCR** (uniquement le nombre de caractères reconnus dans une image)
   3. Test de `RandomOverSampler` et de `RandomUnderSampler`
   4. Test de `GirdSearchCV` et de `RandomRandomizedSearchCV`
   5. Unification avec `StackingClassifier`
@@ -364,13 +364,13 @@ Voici un extrait du schéma permettant de faire un premier choix dans les modèl
   - **3.70 %** : l'aléatoire car il y a **27** catégories
   - **12.02 %** : le poids de la classe la plus importante, si on ne prédisait qu'elle.
 
-  Nous avons laissé dans le tableau une colonne de résultats éronnés suite à une mauvaise génération de la méta-donnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
+  Nous avons laissé dans le tableau une colonne de résultats éronnés suite à une mauvaise génération de la métadonnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
 
   **Analyse :**
 
-  Ces résultats n'utilisent que les méta-données et pas les données elles-mêmes.
+  Ces résultats n'utilisent que les métadonnées et pas les données elles-mêmes.
   Même s'ils permettent de faire beaucoup mieux que l'aléatoire, ils plafonnent à 34 %, ce qui est largement insuffisant pour une utilisation en production.
-  Ils nous ont permis de pratiquer différents modèles, de chercher à générer des méta-données, de combiner des modèles (avec le StackingClassifier), de voir les intérêts ou limites de l'optimisation (GridSearchCV).
+  Ils nous ont permis de pratiquer différents modèles, de chercher à générer des métadonnées, de combiner des modèles (avec le StackingClassifier), de voir les intérêts ou limites de l'optimisation (GridSearchCV).
   Les pages suivantes sont axées sur les images et les textes.
 
   Tableau : le fond vert montre un progrès, le fond orange un recul, et le gris une erreur.
