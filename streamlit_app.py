@@ -508,7 +508,7 @@ if page == "Modélisation - textes" :
 - Preprocessing des données textuelles via l'application successive de **2 couches** de `stopwords` et de **3** couches de `regex` 
     tenant compte des **spécificités** de chacune des **langues** et de la **qualité** des données retournées pour chacune d'entre elles
    '''
-  st.dataframe(X_processed)
+  st.dataframe(X_processed.head(10))
   '''
 
 - **Affinage** Artificiel de la fonction `langdetect` via l'application d'une **2nde couche** de détection suivie par un **nettoyage**
