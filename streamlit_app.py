@@ -590,7 +590,7 @@ X_train_df_clean = X_train_df.drop(index = lang_diff_df_index_list, columns = ["
   ##### `Script d'optimisation des paramètres d'entraînement`'''
 
   st.code('''
-  param_grid = {"batch_size": [128, 256], "epochs" : [50, 80, 100, 150], "validation_split": [0.1, 0.15]}
+  param_grid = {"batch_size": [128, 256], "epochs" : [50, 80, 100, 150, 200], "validation_split": [0.1, 0.15]}
   param_comb = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
   test_accuracy_list = []
   test_loss_list = []
@@ -624,6 +624,12 @@ best["best_loss"] = min_loss''')
   ##### `Instruction d'optimisation du pas de l'algorithme de descente du gradient`'''
   st.code('''lr_plateau = keras.callbacks.ReduceLROnPlateau(monitor = "val_loss", patience = 5, factor = 0.5, verbose = 0,
 mode = "min")''')
+  '''
+  ##### `Instruction d'optimisation de la durée allouée à l'entraînement`'''
+  st.code('''early_stopping = keras.callbacks.EarlyStopping(monitor = "val_accuracy", patience = 20, verbose = 0, mode = "max", restore_best_weights = True)''')
+  '''
+  ##### `Instruction de la sauvegarde de la version la plus performante du modèle entraîné`'''
+  st.code('''save = keras.callbacks.ModelCheckpoint(filepath = "/content/word2vec_dnn_df.keras", monitor = "val_accuracy", verbose = 0, save_best_only = True, mode = "max", save_freq = "epoch")''')
 
   st.write("#### **`Courbes de la métrique de précision`**")
   st.image("DNN_Precision Curves.png")
