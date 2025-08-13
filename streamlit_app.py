@@ -350,32 +350,32 @@ if page == "Modélisation - meta-data" :
 Voici un extrait du schéma permettant de faire un premier choix dans les modèles :
 
 '''
-st.image('model_choice.png', width=600)
+  st.image('model_choice.png', width=600)
 
-'''
-Plusieurs phases ont eu lieu : 
-1. Utilisation basique du modèle
-2. Ajout de méta-données comme celles provenant de l'**OCR** (uniquement le nombre de caractères reconnus dans une image)
-3. Test de `RandomOverSampler` et de `RandomUnderSampler`
-4. Test de `GirdSearchCV` et de `RandomRandomizedSearchCV`
-5. Unification avec `StackingClassifier`
-
-Les scores ont généralement augmenté au fur et à mesure, et varient généralement de **10** à **35 %**. Ces chiffres sont à comparer avec :
-- **3.70 %** : l'aléatoire car il y a **27** catégories
-- **12.02 %** : le poids de la classe la plus importante, si on ne prédisait qu'elle.
-
-Nous avons laissé dans le tableau une colonne de résultats éronnés suite à une mauvaise génération de la méta-donnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
-
-**Analyse :**
-
-Ces résultats n'utilisent que les méta-données et pas les données elles-mêmes.
-Même s'ils permettent de faire beaucoup mieux que l'aléatoire, ils plafonnent à 34 %, ce qui est largement insuffisant pour une utilisation en production.
-Ils nous ont permis de pratiquer différents modèles, de chercher à générer des méta-données, de combiner des modèles (avec le StackingClassifier), de voir les intérêts ou limites de l'optimisation (GridSearchCV).
-Les pages suivantes sont axées sur les images et les textes.
-
-Tableau : le fond vert montre un progrès, le fond orange un recul, et le gris une erreur.
   '''
-st.image('tableau_modeles_meta-data.png')
+  Plusieurs phases ont eu lieu : 
+  1. Utilisation basique du modèle
+  2. Ajout de méta-données comme celles provenant de l'**OCR** (uniquement le nombre de caractères reconnus dans une image)
+  3. Test de `RandomOverSampler` et de `RandomUnderSampler`
+  4. Test de `GirdSearchCV` et de `RandomRandomizedSearchCV`
+  5. Unification avec `StackingClassifier`
+
+  Les scores ont généralement augmenté au fur et à mesure, et varient généralement de **10** à **35 %**. Ces chiffres sont à comparer avec :
+  - **3.70 %** : l'aléatoire car il y a **27** catégories
+  - **12.02 %** : le poids de la classe la plus importante, si on ne prédisait qu'elle.
+
+  Nous avons laissé dans le tableau une colonne de résultats éronnés suite à une mauvaise génération de la méta-donnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
+
+  **Analyse :**
+
+  Ces résultats n'utilisent que les méta-données et pas les données elles-mêmes.
+  Même s'ils permettent de faire beaucoup mieux que l'aléatoire, ils plafonnent à 34 %, ce qui est largement insuffisant pour une utilisation en production.
+  Ils nous ont permis de pratiquer différents modèles, de chercher à générer des méta-données, de combiner des modèles (avec le StackingClassifier), de voir les intérêts ou limites de l'optimisation (GridSearchCV).
+  Les pages suivantes sont axées sur les images et les textes.
+
+  Tableau : le fond vert montre un progrès, le fond orange un recul, et le gris une erreur.
+    '''
+  st.image('tableau_modeles_meta-data.png')
 
 
 
