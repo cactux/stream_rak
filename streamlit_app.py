@@ -302,7 +302,142 @@ Dans X_train, ajout des informations suivantes :
 
 Le X_train enrichi est stocké dans `data/processed`.
 
-  ## Enrichissement des données - Modélisation exploitant la sémantique
+#### Exemples de code utilisé : (extraits)'''
+
+  st.code('''
+          # Traitement des NaN
+          X_train_streamlit.replace(["nan", "0", "-", ".", "nc", "...", "(1"], np.nan, inplace=True)
+          X_train_streamlit.fillna('', inplace=True)
+          
+          # Conversion des caractères HTML (ex : &eacute; est remplacé par é)
+          X_train_streamlit["designation"] = X_train_streamlit["designation"].apply(lambda x : html.unescape(x))
+          X_train_streamlit["description"] = X_train_streamlit["description"].apply(lambda x : html.unescape(x))
+          
+          # Comptage des tags HTML
+          X_train_streamlit["nb_tags"] = X_train_streamlit.description.apply(lambda x : x.count('<'))
+
+          # Suppression des tags HTML : avec une fonction contenant notamment :
+          text = re.sub(r'<.*?>', ' ', text)
+
+          # Longueur des textes :
+          X_train_streamlit['designation_len'] = X_train_streamlit['designation'].str.len()
+          X_train_streamlit['description_len'] = X_train_streamlit['description'].str.len()
+
+          # Détection de la langue :
+          import langdetect
+          designation_lang = langdetect.detect(X_train_streamlit["designation"].values[i]) # Dans une boucle
+
+          # Recherche de texte dans les images :
+          import keras_ocr
+          pipeline = keras_ocr.pipeline.Pipeline()
+          prediction_groups = pipeline.recognize(images)
+
+  ''', language="python")
+
+  with st.expander("Code de détection de la taille réelle des images (cliquer pour afficher)"):
+    st.write('''
+        Le code suivant permet de détecter la largeur et la hauteur réelles d'une page : souvent des objets ont été détourés et sont sur fond blanc.
+             Pour chacun des 4 côtés d'une image, ce code cherche la première ligne ou colonne pour laquelle la couleurs moyenne dépasse un seuil.
+    ''')
+    st.code('''
+      import sys
+from pathlib import Path
+import os.path
+import cv2
+import numpy as np
+
+# Passer un dossier en entrée, sinon prend le dossier courant.
+# Output sur la sortie standard, à rediriger dans un CSV comme data/processed/images_real_w_h.csv
+
+if (len(sys.argv) == 1):
+    dossier = Path.cwd()
+else:
+    if(os.path.isdir(sys.argv[1])):
+        dossier = Path(sys.argv[1])
+
+# print(f"Dossier à traiter : {dossier}")
+
+class BorderAnalyzer:
+    def __init__(self, white_threshold=250):
+        self.white_threshold = white_threshold
+
+    def find_borders(self, img_path):
+        img = cv2.imread(img_path)
+        if img is None:
+            print("Image not found.")
+            return None, None, None, None
+
+        # Convert to Grayscale to simplify image processing
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+
+        left_border = 0
+        right_border = w - 1
+        top_border = 0
+        bottom_border = h - 1
+
+        # Find left border
+        for i in range(w):
+            col = gray[:, i]
+            # print(i, "-", np.mean(col))
+            if np.mean(col) < self.white_threshold:
+                left_border = i
+                gray2[:, i] = 0
+                break
+
+        # Find right border
+        for i in range(w - 1, -1, -1):
+            col = gray[:, i]
+            if np.mean(col) < self.white_threshold:
+                right_border = i
+                gray2[:, i] = 0
+                break
+
+        # Find top border
+        for i in range(h):
+            row = gray[i, :]
+            # print(np.std(row, 0), " - ")
+            if np.mean(row) < self.white_threshold:
+                top_border = i
+                gray2[i, :] = 0
+                break
+
+        # Find bottom border
+        for i in range(h - 1, -1, -1):
+            row = gray[i, :]
+            if np.mean(row) < self.white_threshold:
+                gray2[i, :] = 0
+                bottom_border = i
+                break
+
+        # img_path2 = img_path + "_gray.jpg"
+        # cv2.imwrite(img_path2, gray2)
+
+        return left_border, right_border, top_border, bottom_border
+
+print("imageid,productid,left_border,right_border,top_border,bottom_border,real_width,real_height")
+for fichier in dossier.glob("*.jpg"):
+    analyzer = BorderAnalyzer(white_threshold=245)
+    left_border, right_border, top_border, bottom_border = analyzer.find_borders(fichier)
+    real_w = right_border - left_border
+    # Parfois on a right_border = left_border, donc real_w est nul => on met 500
+    if(real_w == 0):
+        real_w = 500
+    real_h = bottom_border - top_border
+    # Parfois on a top_border = bottom_border, donc real_h est nul => on met 500
+    if(real_h == 0):
+        real_h = 500
+    tmp_split = fichier.name.replace(".jpg", "").split(sep="_")
+    imageid = tmp_split[1]
+    productid = tmp_split[3]
+    print(f"{imageid},{productid},{left_border},{right_border},{top_border},{bottom_border},{real_w},{real_h}")
+
+
+    ''', language="python")
+    # st.image("https://static.streamlit.io/examples/dice.jpg")
+
+  '''## Enrichissement des données - Modélisation exploitant la sémantique
   Dans X_train, ajout des informations suivantes :
 - `designation_description` : concaténation des champs `designation` et `description`
 - `lang` : langue détectée par la bibliothèque `langdetect`
