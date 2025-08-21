@@ -73,13 +73,13 @@ lang_dist.index.name = "**langue**"
 st.set_page_config(layout="wide")
 st.title("Projet de classification multimodale de données produits - Rakuten France")
 st.sidebar.title("Sommaire")
-pages=["Introduction", "Exploration des données", "Modélisation - métadonnées", "Modélisation - images", "Modélisation - textes", "Fusion par vote", "Démonstration", "Difficultés et prospective", "Conclusion"]
+pages=["Introduction", "Exploration des données", "Modélisation - métadonnées", "Modélisation - images", "Modélisation - textes", "Fusion par vote", "Démonstration", "Difficultés et prospective", "Conclusion", "(ToutesLesPages)"]
 page=st.sidebar.radio("Aller vers", pages)
 
 
 
 ########################################################## Introduction ###########################################################
-if page == "Introduction" : 
+if page == "Introduction" or page == "(ToutesLesPages)" :
   st.write("## Introduction")
   '''
   Dans le cadre de la formation Data Scientist, suivie chez DataScientest en mode cursus continu promotion **NOV24**, nous avons mené un projet de **Data Science**.
@@ -118,7 +118,7 @@ if page == "Introduction" :
 
 
 ########################################################## Exploration des données ###########################################################
-if page == "Exploration des données" : 
+if page == "Exploration des données" or page == "(ToutesLesPages)" :
   st.write("## Exploration des données + augmentation")
   '''
   Les données fournies sont :
@@ -466,7 +466,7 @@ for fichier in dossier.glob("*.jpg"):
 
 
 ########################################################## Modélisation métadonnées ###########################################################
-if page == "Modélisation - métadonnées" : 
+if page == "Modélisation - métadonnées" or page == "(ToutesLesPages)" :
   st.write("## Modélisation sur métadonnées")
   '''Dans un premier temps, nous avons appliqué des modèles classiques de Machine Learning sur les métadonnées.
   C'est à dire sur des informations comme les longueurs des champs designation et description, les tailles d'images, le nombre de tags HTML, etc.
@@ -515,7 +515,7 @@ if page == "Modélisation - métadonnées" :
 
 
 ########################################################## Modélisation images ###########################################################
-if page == "Modélisation - images" : 
+if page == "Modélisation - images" or page == "(ToutesLesPages)" :
   st.write("## Modélisation sur images")
   st.write("### Organisation des images")
   
@@ -634,7 +634,7 @@ Compte tenu du fait que le jeu de données est deséquilibré mais également qu
 
 
 ########################################################## Modélisation textes ###########################################################
-if page == "Modélisation - textes" : 
+if page == "Modélisation - textes" or page == "(ToutesLesPages)" :
   st.write("## Modélisation sur textes")
   st.write("### Approche Globale")
   '''
@@ -780,7 +780,7 @@ mode = "min")''')
 
 
 ########################################################## Fusion ###########################################################
-if page == "Fusion par vote" : 
+if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   st.write("## Fusion par vote")
 
   '''
@@ -796,12 +796,15 @@ if page == "Fusion par vote" :
   '''
 
   ########################################################## Démonstration ###########################################################
-if page == "Démonstration" : 
+if page == "Démonstration" or page == "(ToutesLesPages)" :
   st.write("## Démonstration")
+  '''
+  La démonstration ne fonctionne que sur le streamlit.
+  '''
 
 
 ########################################################## Difficultés et prospective ###########################################################
-if page == "Difficultés et prospective" : 
+if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
   st.write("## Difficultés et prospective")
   '''
   Nous avons naturellement rencontrés plusieurs difficultés au cours de ce projet.
@@ -813,7 +816,7 @@ if page == "Difficultés et prospective" :
 
 
 ########################################################## Conclusion ###########################################################
-if page == "Conclusion" : 
+if page == "Conclusion" or page == "(ToutesLesPages)" :
   st.write("## Conclusion")
   '''
   Ce projet nous a permis d'appliquer concrètement de très nombreuses connaissances acquises pendant le cursus DataScientist de DataScientest.
@@ -826,6 +829,14 @@ if page == "Conclusion" :
   - Comparer les ressources nécessaires et résultats de ces différentes approches.
   
   Nous avons beaucoup appris par tests / erreurs / corrections jusqu'à arriver à un résultat qui nous semble satisfaisant.
+
+  ### À propos
+  Projet DS - Promotion Novembre 2024 en continu
+
+  Auteurs :
+  - Nadine ASSAF - https://www.linkedin.com/in/nadine-assaf-34a74a49/
+  - Nicolas THOMAS - https://www.linkedin.com/in/nicolas-thomas-2036245b/
+  - Yann COCHARD - https://www.linkedin.com/in/yanncochard/
 
   '''
 
