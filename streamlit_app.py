@@ -757,10 +757,20 @@ best["best_loss"] = min_loss''')
   
   '''
   ##### `Instruction d'optimisation du pas de l'algorithme de descente du gradient`'''
+  '''
+  Nous avons opté pour une optimisation du pas de gradient adossée à la **minimisation** de la valeur de la fonction de **perte** du jeu
+  de données de l'ensemble de validation
+  \nCette optimisation intègre une valeur **optimum** du paramètre `patience` de **x5** **maximisant** ainsi la performance du modèle 
+  '''
   st.code('''lr_plateau = keras.callbacks.ReduceLROnPlateau(monitor = "val_loss", patience = 5, factor = 0.5, verbose = 0,
 mode = "min")''')
   '''
   ##### `Instruction d'optimisation de la durée allouée à l'entraînement`'''
+  '''
+  Nous avons opté pour une optimisation de la durée de l'entraînement adossée à la **maximisation** de la valeur du **score** de la **précision** du jeu de données de l'ensemble
+  de validation.
+  \nCette optimisation intègre une valeur **optimum** du paramètre `patience` à **10%** du nombre d'`epochs` **maximisant** ainsi la performance du modèle 
+  '''
   st.code('''early_stopping = keras.callbacks.EarlyStopping(monitor = "val_accuracy", patience = 20, verbose = 0, mode = "max", restore_best_weights = True)''')
   '''
   ##### `Instruction de la sauvegarde de la version la plus performante du modèle entraîné`'''
@@ -807,11 +817,16 @@ if page == "Démonstration" or page == "(ToutesLesPages)" :
 if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
   st.write("## Difficultés et prospective")
   '''
-  Nous avons naturellement rencontrés plusieurs difficultés au cours de ce projet.
+  Nous avons naturellement rencontrés plusieurs difficultés au cours de ce projet:
 
-  1. La plus importante concerne les temps de calcul : pour le traitement des images il faut de la capacité GPU et nos PC ne sont pas bien adaptés.
-  Nous avons utilisé **google collab** pour avoir une capacité de calcul suffisante. Voici quelques exemples de temps de calcul: TODO compléter ?
-  2. Les outils à notre disposition en tant que DataScientist sont très nombreux, et les techniques ou méthodes pour affiner leur usage également. On arrive à une quantité globale de tests ou calculs possible énorme, il faut choisir, donc renoncer à certains par limite de temps.
+  1. La plus **importante** concerne le **temps** de calcul : le traitement du **texte** et des **images** nécéssite de la capacité **GPU** et nos PC ne sont pas adaptés pour.
+  Nous avons donc dû utiliser des créneaux **google colab** pour avoir une capacité de calcul suffisante. \n Quelques exemples de **durée** de calcul: \n '''
+  '''`Word2Vec-DNN Keras`: [PC **CPU** Standard: **~500min** / Google Colab **GPU** T4: **~20min** => Coefficient Multiplicateur d'**~25**]'''
+  '''
+  2. La **contrainte** induite par la **multitude** des outils, techniques et méthodes à notre disposition en tant que Data Scientists => génère une **quantité** globale de travaux de modélisation et de tests non négligeable nécessitant à un moment ou à un autre de choisir 
+  et donc de **renoncer** à certains par **limitation** en termes de bande passante.
+  
+  3. La **complexité** de la **fusion** des travaux et du packaging générée par la **diversité** des environnements de développement dont dispose chacun des membres de l'équipe projet
   '''
 
 
@@ -819,16 +834,18 @@ if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
 if page == "Conclusion" or page == "(ToutesLesPages)" :
   st.write("## Conclusion")
   '''
-  Ce projet nous a permis d'appliquer concrètement de très nombreuses connaissances acquises pendant le cursus DataScientist de DataScientest.
+  Ce projet nous a permis d'**appliquer** concrètement de très nombreuses **connaissances** acquises pendant le cursus Data Scientist de DataScientest, en s'inspirant notamment
+  de certaines des techniques qui nous ont été introduites dans le domaine du **text mining** et de la **classification d'images**.
 
-  Nous avons pu :
-  - Appliquer les premiers modèles de ML sur les métadonnées, et élargir à d'autres modèles cherchés sur le net.
-  - Tester et consolider en utilisant RandomOverSampler, RandomUnderSampler, StackingClassifier, RandomizedSearchCV, etc
-  - Analyser des images avec un CNN classique puis un modèle VGG-16.
-  - Analyser des textes avec NLTK.
-  - Comparer les ressources nécessaires et résultats de ces différentes approches.
+  - Des Premiers Modèles de **Machine Learning** exploitant les seules **métadonnées** construites à partir du jeu de données ont permis de conclure qu'à elles seules ces nouvelles **features** ne pouvaient
+  **pas répondre** à la problématique de classification étant **dépourvues** d'éléments véhiculant le **contexte** ainsi que la **sémantique** inhérant à chacun des documents issu du jeu de données  
+  - Des Modèles de **Machine Learning** et de **Deep Learning** exploitant des techniques d'**analyse et de pré-processing** des données textuelles, d'**extraction** et de **quantification** des éléments **contextuels** cachés dans les documents
+  ont permis de répondre à la problèmatique de classification et de nous offrir des scores de **performance** relativement **bons**
+  - _**[A Completer par Nicolas]**_ Analyser des images avec un CNN classique puis un modèle VGG-16.
   
-  Nous avons beaucoup appris par tests / erreurs / corrections jusqu'à arriver à un résultat qui nous semble satisfaisant.
+  Les différentes **itérations** nous ont permis d'**approfondir** nos connaissances sur le fonctionnement intrinsèque à chacun des modèles, 
+  d'évaluer leur **performance** eu égard à l'**efficacité** affichée et in fine d'aboutir à des résultats qui nous semblaient **satisfaisants**
+  au vu du **temps** alloué à l'exercice.
 
   ### À propos
   Projet DS - Promotion Novembre 2024 en continu
