@@ -798,11 +798,57 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   L'étape de vote consiste à fusionner ces modèles en vue d'obtenir un modèle fusionné aux performances supérieures à celles du meilleur modèle
   obtenu préalablement, le modèle de texte Word2Vec-DNN
 
-  Un "hard voting " ne semble pas approprié ici car les performances des modèles modèles sont très hétérogènes.
+  Un "hard voting " ne semble a priori pas approprié ici car les performances des modèles modèles sont très hétérogènes.
 
-  Nous implémentons donc un "soft voting"
+  Il est néanmoins testé en plus d'un "soft voting" qui pondère les résultats des différents modèles par leur précision moyenne connue a priori.
 
-  L'algorithme de vote est en cours de mise en place.
+  La fonction de voting est implémentée via un passage en encodage binaire comme suit:
+  '''
+  st.code('''
+  def Voting(list_y, weight = None):
+    if weight is None:
+        weight = np.ones(len(list_y))
+
+    label_encoder = joblib.load(os.path.join(models_path,"meta_XGBClassifier_label_encoder.joblib"))
+
+    for i in range(len(list_y)):
+        y_encoded = label_encoder.transform(list_y[i])
+        y_encoded_cat = keras.utils.to_categorical(y_encoded, num_classes = 27)*weight[i]
+        if i==0:
+           y_encoded_cat_tot =  y_encoded_cat
+        else:
+           y_encoded_cat_tot +=  y_encoded_cat
+    y_tot_classes = np.argmax(y_encoded_cat_tot, axis = 1)
+    y_tot_classes_origin = label_encoder.inverse_transform(y_tot_classes)
+    return pd.DataFrame(y_tot_classes_origin,columns=["prdtypecode_Voting"])
+
+  ''')
+  
+  '''
+  Le résultat avec "hard voting" appliqué aux résultats sur le jeu de test des trois modèles de texte
+  Word2Vec_DNN, Word2Vec_RF, LightGBM_mod, au modèle Meta_XGBClassifier et au modèle image VVG16_TL
+  est le suivant:
+  '''
+  st.write("#### **`Rapport de classification`**")
+  st.image("score_voting_sans_ponderation.png")
+  
+  st.write("#### **`Heatmap`**")
+  st.image("confusion_voting_sans_ponderation.png")
+  
+  '''
+  En mode "soft voting" il est le suivant, lègèrement meilleur qu'en "hard voting":
+  '''
+  st.write("#### **`Rapport de classification`**")
+  st.image("score_voting_avec_ponderation.png")
+  
+  st.write("#### **`Heatmap`**")
+  st.image("confusion_voting_avec_ponderation.png")
+  
+  
+  '''
+  Néanmoins, on ne constate pas d'amélioration par rapport au meilleur modèle texte Word2Vec_DNN
+  qui peut donc être utilisé seul pour fournir les meilleurs résultats de prédiction.
+
   '''
 
   ########################################################## Démonstration ###########################################################
