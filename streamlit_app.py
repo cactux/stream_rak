@@ -741,7 +741,7 @@ X_train_df_clean = X_train_df.drop(index = lang_diff_df_index_list, columns = ["
  des dimensions de la **matrice des embeddings**, la **profondeur** du dictionnaire du **vocabulaire**, le choix de l'**hyperparamètre** `learning_rate` de l'algorithme 
  de la **descente du gradient** et le choix des paramètres de l'**entrainement** `{batch_size, epochs, validation_split}`: cette dernière a essentiellement consisté en un 
  ajustement conjoint du nombre de **batchs** (une valeur **trop petite** empêchant la **convergence** du modèle) et du nombre d'**epochs** (une valeur **trop grande** favorisant le **sur-apprentissage** du modèle), 
- **Reformatage** des labels par Encodage via le `label_encoder` et le `to_categorical` pour mise en conformité avec la fonction de **perte** `categorical_crossentropy` particulièrement utilisée dans la résolution de cas de classification **multi-classes** 
+ **Reformatage** des labels par Encodage via le `label_encoder` et le `to_categorical` pour mise en conformité avec la fonction de **perte** `categorical_crossentropy` particulièrement utilisée dans la résolution de cas de classification **multi-classes**.
   '''
   st.write("#### **`Architecture`**")
   st.image("Architecture Modèle Word2Vec.png")
@@ -780,16 +780,16 @@ best["best_loss_param"] = param_comb[j]
 best["best_loss"] = min_loss''')
   
   '''
-  ##### `Instruction d'optimisation du pas de l'algorithme de descente du gradient`'''
+  ##### Instruction d'optimisation du pas de l'algorithme de descente du gradient'''
   '''
-  Nous avons opté pour une optimisation du pas de gradient adossée à la **minimisation** de la valeur de la fonction de **perte** du jeu
-  de données de l'ensemble de validation
-  \nCette optimisation intègre une valeur **optimum** du paramètre `patience` de **x5** **maximisant** ainsi la performance du modèle 
+  Nous avons opté pour une optimisation du pas de gradient adossée à la **minimisation** de la valeur de la fonction de **perte** du jeu de données de l'ensemble de validation.
+
+  Cette optimisation intègre une valeur **optimum** du paramètre `patience` de **x5** **maximisant** ainsi la performance du modèle.
   '''
   st.code('''lr_plateau = keras.callbacks.ReduceLROnPlateau(monitor = "val_loss", patience = 5, factor = 0.5, verbose = 0,
 mode = "min")''')
   '''
-  ##### `Instruction d'optimisation de la durée allouée à l'entraînement`'''
+  ##### Instruction d'optimisation de la durée allouée à l'entraînement'''
   '''
   Nous avons opté pour une optimisation de la durée de l'entraînement adossée à la **maximisation** de la valeur du **score** de la **précision** du jeu de données de l'ensemble
   de validation.
@@ -797,19 +797,19 @@ mode = "min")''')
   '''
   st.code('''early_stopping = keras.callbacks.EarlyStopping(monitor = "val_accuracy", patience = 20, verbose = 0, mode = "max", restore_best_weights = True)''')
   '''
-  ##### `Instruction de la sauvegarde de la version la plus performante du modèle entraîné`'''
+  ##### Instruction de la sauvegarde de la version la plus performante du modèle entraîné'''
   st.code('''save = keras.callbacks.ModelCheckpoint(filepath = "/content/word2vec_dnn_df.keras", monitor = "val_accuracy", verbose = 0, save_best_only = True, mode = "max", save_freq = "epoch")''')
 
-  st.write("#### **`Courbes de la métrique de précision`**")
+  st.write("#### Courbes de la métrique de précision")
   st.image("DNN_Precision Curves.png")
   
-  st.write("#### **`Courbes de la fonction de perte`**")
+  st.write("#### Courbes de la fonction de perte")
   st.image("DNN_Loss Curves.png")
   
-  st.write("#### **`Rapport de classification`**")
+  st.write("#### Rapport de classification")
   st.image("DNN_Classification Report.png")
   
-  st.write("#### **`Heatmap`**")
+  st.write("#### Heatmap")
   st.image("DNN_Heatmap.png")
 
 
