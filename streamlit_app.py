@@ -515,6 +515,18 @@ if page == "Modélisation - métadonnées" or page == "(ToutesLesPages)" :
 
   Ces résultats n'utilisent que les métadonnées et pas les données elles-mêmes.
   Même s'ils permettent de faire beaucoup mieux que l'aléatoire, ils plafonnent à 34 %, ce qui est largement insuffisant pour une utilisation en production.
+  Il doit être possible d'améliorer ce score en ajoutant plus de métadonnées, comme :
+  - Les unités présentes dans les textes : g, kg, m, mm, W, oz, ...
+  - Les quantités : 130 g, 6 oz, ...
+  - Les dimensions 135 m², 50 m, ...
+  - Les caractéristiques : 42 g/m², 3 l/s, ...
+  - Sur les images si elles sont en couleurs ou en N&B
+  - Les niveaux de couleurs RGB des images
+  - etc.
+  Cependant nous ne creusons pas cette piste, car le gain serait probablement marginal.
+
+  Une autre idée pourrait être, en se basant sur cette analyse des métadonnées, de proposer à l'utilisateur les 3 catégories les plus probables. Dans le cadre d'un projet réel, ce serait à discuter avec le client.
+
   Ils nous ont permis de pratiquer différents modèles, de chercher à générer des métadonnées, de combiner des modèles (avec le StackingClassifier), de voir les intérêts ou limites de l'optimisation (GridSearchCV).
   Les pages suivantes sont axées sur les images et les textes.
 
