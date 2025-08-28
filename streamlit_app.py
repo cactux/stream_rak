@@ -119,7 +119,7 @@ if page == "Introduction" or page == "(ToutesLesPages)" :
 
 ########################################################## Exploration des données ###########################################################
 if page == "Exploration des données" or page == "(ToutesLesPages)" :
-  st.write("## Exploration des données + augmentation")
+  st.write("## Exploration des données + métadonnées")
   '''
   Les données fournies sont :
 - 3 fichiers CSV :
@@ -183,7 +183,7 @@ On a autant de lignes que dans le fichier `X_train_update.csv`, ce fichier conti
   X['designation_len'] = X['**designation**'].str.len()
   X['description_len'] = X['**description**'].str.len()
   nb_categories = y["**code produit**"].nunique()
-  st.write(f"Il y a **{nb_categories}** catégories..")
+  st.write(f"Il y a **{nb_categories}** catégories.")
   y_count = y.groupby(["**code produit**"])["**code produit**"].count().sort_values(ascending=False)
   # display(y_count)
   '''
@@ -207,7 +207,7 @@ On a autant de lignes que dans le fichier `X_train_update.csv`, ce fichier conti
  
   st.write(y.value_counts(ascending = False, normalize = True).map("{:0.2%}".format), "\n")
   
-  '''Ce tableau nous renvoit une distribution **non uniforme** des catégories: la catégorie **2583** embarque à elle seule
+  '''Ce tableau nous renvoie une distribution **non uniforme** des catégories : la catégorie **2583** embarque à elle seule
   **12.02%** des observations tandis que chacune des **26** catégories restantes se partagent le reliquat du dataset 
   dans une proportion allant de **~1%** à **~6%** 
   => il s'agit donc d'un problème de **classification déséquilibrée**'''
@@ -265,13 +265,23 @@ On a autant de lignes que dans le fichier `X_train_update.csv`, ce fichier conti
   
   '''
   ### Analyse des images
+
+  Une analyse visuelle de quelques images permet d'imaginer les catégories qui correspondent aux 27 codes prdtypecode, comme :
+  - Livres
+  - Cartes de jeux
+  - Jouets enfants
+  - Mobilier de jardin
+  - Décoration
+  - Outillage de jardin
+  - etc.
+
   Un script bash est créé pour analyser les images :
   - Elles sont toutes au format **JPEG**, de taille **500 x 500** pixels.
   - Les tailles de fichiers, en octets, sont enregistrées pour éventuellement enrichir notre dataset.
 
   Cependant en en visionnant quelques-unes, on constate que beaucoup sont plus petites : elles ont une marge blanche sur **2** ou **4** des côtés. Un script python détermine leur “vraies” dimensions et enrichit notre jeu de données.
 
-  Grâce à ces nouvelles données une analyse de la **proportion “utile” surface utile / surface totale** des images dans les **500x500** pixels disponibles est effectuée. L’histogramme de cette proportion, comprise entre **0** et **1** et présentée ci-dessous:
+  Grâce à ces nouvelles données une analyse de la **proportion “utile” surface utile / surface totale** des images dans les **500x500** pixels disponibles est effectuée. L’histogramme de cette proportion, comprise entre **0** et **1** et présentée ci-dessous :
   '''
   st.image('distribution-ratio-images.jpg', width=600)
   '''On constate un pic de l’histogramme sur la valeur **1**, qui indique qu’une proportion significative des images est de forme carrée ou remplit entièrement les **500x500** pixels disponibles.
@@ -291,7 +301,7 @@ En outre, le maximum de nombre de valeurs distinctes pour chaque **md5sum** est 
 
   ## Enrichissement des données - Modélisation exploitant les métadonnées
 Dans X_train, ajout des informations suivantes :
-- `designation_lang` : langue détectée par la bibliothèque _langdetect_. Ne semble pas très fiable, rien que dans les 1ère ligne je vois des erreurs.
+- `designation_lang` : langue détectée par la bibliothèque _langdetect_. Ne semble pas très fiable, rien que dans les 1ères lignes on voit des erreurs.
 - `description_lang` : langue détectée par la bibliothèque _langdetect_
 - `lang` : langue détectée par la bibliothèque _langdetect_ sur la concaténation de designation + description
 - `designation_len` : en nb de caractères
@@ -499,7 +509,7 @@ if page == "Modélisation - métadonnées" or page == "(ToutesLesPages)" :
   - **3.70 %** : l'aléatoire car il y a **27** catégories
   - **12.02 %** : le poids de la classe la plus importante, si on ne prédisait qu'elle.
 
-  Nous avons laissé dans le tableau une colonne de résultats éronnés suite à une mauvaise génération de la métadonnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
+  Nous avons laissé dans le tableau une colonne de résultats érronés suite à une mauvaise génération de la métadonnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
 
   **Analyse :**
 
@@ -522,7 +532,7 @@ if page == "Modélisation - images" or page == "(ToutesLesPages)" :
   '''
 En premier lieu nous créons un jeu de données qui sera utilisé pour « train + validation », lors de la phase d’entraînement, et un jeu de données « test » pour l’évaluation des performances.
 
-Compte tenu du fait que le jeu de données est deséquilibré mais également que nos capacités de calcul sont limitées,
+Compte tenu du fait que le jeu de données est déséquilibré mais également que nos capacités de calcul sont limitées,
   un sous-échantillonnage du jeu de données est effectué de façon à réduire le nombre d'échantillons par classe à
   celui de la classe la moins représentée soit 764 soit 20628 images au total
 '''
@@ -539,7 +549,7 @@ Compte tenu du fait que le jeu de données est deséquilibré mais également qu
   st.write('Classes échantillons après sous échantillonnage undersampled :', Y_train_df_ru.value_counts().sort_index())
 
   '''
-  Malgré ce sous-échantillonage pour des raisons de temps de calcul, il a été décidé de réduire d'avantage le jeu de données et de le découpé comme suit:
+  Malgré ce sous-échantillonnage pour des raisons de temps de calcul, il a été décidé de réduire d'avantage le jeu de données et de le découpé comme suit:
   
   - 300 images par classe pour l'entrainement (train) t+ validation
   - 60 images par classe pour le test
@@ -564,7 +574,7 @@ Compte tenu du fait que le jeu de données est deséquilibré mais également qu
   
   - Un CNN "from scratch" pour référence :
   
-  Ce modèle comporte plusieurs couches d'augmentation, et une couche de convolution son architecture est la suivante:
+  Ce modèle comporte plusieurs couches d'augmentation, et une couche de convolution son architecture est la suivante :
   '''
   
   st.image("architecture_CNN_images_fs.png")
@@ -578,13 +588,13 @@ Compte tenu du fait que le jeu de données est deséquilibré mais également qu
   
   
   '''
-  Les résultats obtenus par ce modèle sont peu probant probablement du fait du nombre limité d'images utilisées pour l'entrainement:
+  Les résultats obtenus par ce modèle sont peu probants probablement du fait du nombre limité d'images utilisées pour l'entrainement :
   '''
   
   st.image("score_CNN_images_fs_test.png")
   
   '''
-  La matrice de confusion est la suivante:
+  La matrice de confusion est la suivante :
   '''
   
   st.image("confusion_CNN_images_fs_test.png")
@@ -614,7 +624,7 @@ Compte tenu du fait que le jeu de données est deséquilibré mais également qu
   st.image("score_CNN_images_tl_test.png")
   
   '''
-  La matrice de confusion est la suivante:
+  La matrice de confusion est la suivante :
   '''
   
   st.image("confusion_CNN_images_tl_test.png")
@@ -624,7 +634,7 @@ Compte tenu du fait que le jeu de données est deséquilibré mais également qu
   
   Certes les performances de ce modèle ne sont pas très élevées, mais il commence néanmoins à être exploitable.
   
-  Un aperçu de résultats de classification sur quelques images est présenté ci-dessous:
+  Un aperçu de résultats de classification sur quelques images est présenté ci-dessous :
   '''
   
   st.image("exemple_appli_CNN_images_tl_test.png")
@@ -717,7 +727,7 @@ X_train_df_clean = X_train_df.drop(index = lang_diff_df_index_list, columns = ["
  des dimensions de la **matrice des embeddings**, la **profondeur** du dictionnaire du **vocabulaire**, le choix de l'**hyperparamètre** `learning_rate` de l'algorithme 
  de la **descente du gradient** et le choix des paramètres de l'**entrainement** `{batch_size, epochs, validation_split}`: cette dernière a essentiellement consisté en un 
  ajustement conjoint du nombre de **batchs** (une valeur **trop petite** empêchant la **convergence** du modèle) et du nombre d'**epochs** (une valeur **trop grande** favorisant le **sur-apprentissage** du modèle), 
- **Reformattage** des labels par Encodage via le `label_encoder` et le `to_categorical` pour mise en conformité avec la fonction de **perte** `categorical_crossentropy` particulièrement utilisée dans la résolution de cas de classification **multi-classes** 
+ **Reformatage** des labels par Encodage via le `label_encoder` et le `to_categorical` pour mise en conformité avec la fonction de **perte** `categorical_crossentropy` particulièrement utilisée dans la résolution de cas de classification **multi-classes** 
   '''
   st.write("#### **`Architecture`**")
   st.image("Architecture Modèle Word2Vec.png")
@@ -798,9 +808,9 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   L'étape de vote consiste à fusionner ces modèles en vue d'obtenir un modèle fusionné aux performances supérieures à celles du meilleur modèle
   obtenu préalablement, le modèle de texte Word2Vec-DNN
 
-  Un "hard voting " ne semble pas approprié ici car les performances des modèles modèles sont très hétérogènes.
+  Un "hard voting " ne semble pas approprié ici car les performances des modèles sont très hétérogènes.
 
-  Nous implémentons donc un "soft voting"
+  Nous implémentons donc un "soft voting".
 
   L'algorithme de vote est en cours de mise en place.
   '''
@@ -817,10 +827,10 @@ if page == "Démonstration" or page == "(ToutesLesPages)" :
 if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
   st.write("## Difficultés et prospective")
   '''
-  Nous avons naturellement rencontrés plusieurs difficultés au cours de ce projet:
+  Nous avons naturellement rencontré plusieurs difficultés au cours de ce projet :
 
   1. La plus **importante** concerne le **temps** de calcul : le traitement du **texte** et des **images** nécéssite de la capacité **GPU** et nos PC ne sont pas adaptés pour.
-  Nous avons donc dû utiliser des créneaux **google colab** pour avoir une capacité de calcul suffisante. \n Quelques exemples de **durée** de calcul: \n '''
+  Nous avons donc dû utiliser des créneaux **google colab** pour avoir une capacité de calcul suffisante. \n Quelques exemples de **durée** de calcul : \n '''
   '''`Word2Vec-DNN Keras`: [PC **CPU** Standard: **~500min** / Google Colab **GPU** T4: **~20min** => Coefficient Multiplicateur d'**~25**]'''
   '''
   2. La **contrainte** induite par la **multitude** des outils, techniques et méthodes à notre disposition en tant que Data Scientists => génère une **quantité** globale de travaux de modélisation et de tests non négligeable nécessitant à un moment ou à un autre de choisir 
@@ -840,8 +850,8 @@ if page == "Conclusion" or page == "(ToutesLesPages)" :
   - Des Premiers Modèles de **Machine Learning** exploitant les seules **métadonnées** construites à partir du jeu de données ont permis de conclure qu'à elles seules ces nouvelles **features** ne pouvaient
   **pas répondre** à la problématique de classification étant **dépourvues** d'éléments véhiculant le **contexte** ainsi que la **sémantique** inhérant à chacun des documents issu du jeu de données  
   - Des Modèles de **Machine Learning** et de **Deep Learning** exploitant des techniques d'**analyse et de pré-processing** des données textuelles, d'**extraction** et de **quantification** des éléments **contextuels** cachés dans les documents
-  ont permis de répondre à la problèmatique de classification et de nous offrir des scores de **performance** relativement **bons**
-  - _**[A Completer par Nicolas]**_ Analyser des images avec un CNN classique puis un modèle VGG-16.
+  ont permis de répondre à la problématique de classification et de nous offrir des scores de **performance** relativement **bons**
+  - _**[A Compléter par Nicolas]**_ Analyser des images avec un CNN classique puis un modèle VGG-16.
   
   Les différentes **itérations** nous ont permis d'**approfondir** nos connaissances sur le fonctionnement intrinsèque à chacun des modèles, 
   d'évaluer leur **performance** eu égard à l'**efficacité** affichée et in fine d'aboutir à des résultats qui nous semblaient **satisfaisants**
