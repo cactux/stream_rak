@@ -7,7 +7,13 @@ import seaborn as sns
 import collections
 import sklearn
 import imblearn
+import base64
+import html as ihtml
+import streamlit.components.v1 as components
+
 from io import BytesIO
+import random
+from pathlib import Path
 from sklearn import svm, model_selection, preprocessing, feature_extraction, ensemble
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
@@ -878,10 +884,216 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   ########################################################## Démonstration ###########################################################
 if page == "Démonstration" or page == "(ToutesLesPages)" :
   st.write("## Démonstration")
-  '''
-  La démonstration ne fonctionne que sur le streamlit.
-  '''
 
+  # -----------------------------
+  # Config
+  # -----------------------------
+  CARD_HEIGHT_PX = 600  # hauteur fixe de la carte (texte + image)
+
+
+  # Charger le CSV
+  @st.cache_data
+  def load_data(file):
+    return pd.read_csv(file)
+
+  # Fichier CSV
+  csv_file = Path("./for_demo/inputs_results_all_tests_update_with_ocr_100_samples.csv")
+
+  # Champ pour le dossier contenant les images
+  image_dir = "./for_demo/images"
+
+  df = load_data(csv_file)
+
+  # Vérifications
+  required_cols = {"prdtypecode", "imageid", "productid", "designation", "description"}
+  if not required_cols.issubset(df.columns):
+    st.error(f"❌ Le fichier CSV doit contenir les colonnes : {', '.join(required_cols)}")
+  else:
+    # Colonnes à afficher (seulement prdtypecode_*)
+    cols_to_show = [c for c in df.columns if c.startswith("prdtypecode_")]
+    if not cols_to_show:
+      st.warning("⚠️ Aucune colonne commençant par 'prdtypecode_' trouvée.")
+    else:
+      if "used_indices" not in st.session_state:
+        st.session_state.used_indices = set()
+      if "random_row" not in st.session_state:
+        st.session_state.random_row = None
+        st.session_state.reference_value = None
+        st.session_state.meta_info = {}
+        st.session_state.image_b64 = None  # on stocke l'image encodée
+
+
+      # --- Initialiser les stats ---
+      if "stats" not in st.session_state:
+        st.session_state.stats = {col: {"success": 0, "total": 0} for col in cols_to_show}
+
+        
+      # -----------------------------
+      # Tirage d'une ligne
+      # -----------------------------
+      def draw_random_row():
+        available = list(set(df.index) - st.session_state.used_indices)
+        if not available:
+          st.success("✅ Toutes les lignes ont déjà été tirées !")
+          st.session_state.random_row = None
+          st.session_state.image_b64 = None
+          st.session_state.meta_info = {}
+          return
+
+        idx = random.choice(available)
+        st.session_state.used_indices.add(idx)
+        
+        row_full = df.iloc[idx]
+        
+        # Ne garder que prdtypecode_* et renommer
+        row_filtered = row_full[cols_to_show].to_frame().T.astype(int)
+        row_filtered = row_filtered.rename(columns=lambda c: c.replace("prdtypecode_", "Modèle "))
+        
+        st.session_state.random_row = row_filtered
+        st.session_state.reference_value = int(row_full["prdtypecode"])  # garder en int
+        
+        # --- Mise à jour des stats ---
+        for col in cols_to_show:
+          st.session_state.stats[col]["total"] += 1
+          if int(row_full[col]) == st.session_state.reference_value:
+            st.session_state.stats[col]["success"] += 1
+    
+        # Métadonnées
+        st.session_state.meta_info = {
+          "designation": ihtml.escape(str(row_full.get("designation", ""))),
+          "description": ihtml.escape(str(row_full.get("description", ""))),
+          "code_produit": str(st.session_state.reference_value),
+        }
+
+        # Encodage image
+        st.session_state.image_b64 = None
+        if image_dir:
+          filename = f"image_{int(row_full['imageid'])}_product_{int(row_full['productid'])}.jpg"
+          full_path = Path(image_dir) / filename
+          if full_path.exists():
+            with open(full_path, "rb") as f:
+              st.session_state.image_b64 = base64.b64encode(f.read()).decode("utf-8")
+
+              
+      # -----------------------------
+      # Boutons
+      # -----------------------------
+      col_a, col_b = st.columns(2)
+      with col_a:
+        if st.button("Tirer une ligne aléatoire"):
+          draw_random_row()
+      with col_b:
+        if st.button("🔄 Réinitialiser", key="reset_btn"):
+          # on efface proprement tout ce qui dépend du tirage
+          for k in ("used_indices", "random_row", "reference_value", "meta_info", "image_b64", "stats"):
+            if k in st.session_state:
+                del st.session_state[k]
+          st.rerun() 
+
+      # -----------------------------
+      # Affichage carte + tableau
+      # -----------------------------
+      if st.session_state.random_row is not None:
+        # Styliser les cellules: vert si égal à prdtypecode, rouge sinon
+        ref_val = st.session_state.reference_value
+
+        # -------- Carte HTML (fixe) avec image intégrée --------
+        meta = st.session_state.meta_info
+        
+        # --- Carte (Grid 35%/65%) : texte en haut, image en bas ---
+        if st.session_state.image_b64:
+          img_html = f"""
+          <img src="data:image/jpeg;base64,{st.session_state.image_b64}"
+          style="max-width:100%; max-height:100%;
+          object-fit:contain;
+          border:1px solid #ddd; border-radius:4px;">
+          """
+        else:
+          img_html = """
+          <div style="display:flex; align-items:center; justify-content:center; color:#a00;
+          width:100%; height:100%; border:1px solid #ddd; border-radius:4px;">
+          ⚠️ Image introuvable
+          </div>
+          """
+          
+        card_html = f"""
+        <div style="
+        box-sizing:border-box;
+        border:1px solid #ccc;
+        border-radius:8px;
+        padding:10px;
+        background:#f9f9f9;
+        height:{CARD_HEIGHT_PX}px;
+        display:grid;
+        grid-template-rows: 40% 60%;
+        overflow:hidden;
+        gap:8px;
+        ">
+        <!-- zone texte en haut -->
+        <div style="grid-row:1; white-space:pre-wrap; word-break:break-word; font-size:14px;">
+        <h4 style="margin:0 0 6px 0;">📝 Informations produit</h4>
+        <div style="margin:3px 0;"><strong>Désignation :</strong> {meta['designation']}</div>
+        <div style="margin:3px 0;"><strong>Description :</strong> {meta['description']}</div>
+        <div style="margin:3px 0;"><strong>Code produit :</strong> <code>{meta['code_produit']}</code></div>
+        </div>
+        
+        <!-- zone image en bas -->
+        <div style="grid-row:2; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        {img_html}
+        </div>
+        </div>
+        """
+
+        # Iframe un poil plus haut que la carte pour éviter tout clipping
+        components.html(card_html, height=CARD_HEIGHT_PX + 24, scrolling=False)
+
+
+        # recalculer les stats à chaque rendu
+        taux_dict = {}
+        for col in cols_to_show:
+          total = st.session_state.stats[col]["total"]
+          success = st.session_state.stats[col]["success"]
+          taux = (success / total * 100) if total > 0 else 0
+          taux_dict[col.replace("prdtypecode_", "Modèle ")] = f"{taux:.1f}%"
+          
+        taux_row = pd.DataFrame([taux_dict], index=["Taux de réussite (%)"])
+        df_display = pd.concat([st.session_state.random_row, taux_row], axis=0)
+
+        st.subheader("📊 Prévision du code produit par les différents modèles")
+
+        ref_val = str(st.session_state.reference_value)
+        
+
+        # --- coloration des prédictions (ligne tirée) ---
+        def color_cells(val):
+          return "background-color: lightgreen" if str(val) == ref_val else "background-color: lightcoral"
+
+        # --- coloration du meilleur taux (ligne stats) ---
+        def highlight_best(row):
+          if row.name == "Taux de réussite (%)":
+            # extraire les valeurs numériques des pourcentages
+            values = [float(str(v).replace("%", "")) for v in row]
+            max_val = max(values)
+            return [
+              "background-color: lightgreen; font-weight: bold;" if float(str(v).replace("%", "")) == max_val else ""
+              for v in row
+            ]
+          else:
+            return ["" for _ in row]
+
+        styled_df = df_display.style
+
+        # colorier la ligne du tirage
+        styled_df = styled_df.applymap(
+          color_cells,
+          subset=pd.IndexSlice[st.session_state.random_row.index, st.session_state.random_row.columns]
+        )
+        
+        # mettre en évidence uniquement le meilleur modèle sur la ligne stats
+        styled_df = styled_df.apply(highlight_best, axis=1)
+        
+        st.dataframe(styled_df)
+      
 
 ########################################################## Difficultés et prospective ###########################################################
 if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
