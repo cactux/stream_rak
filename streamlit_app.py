@@ -881,8 +881,16 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
 
   '''
 
-  ########################################################## Démonstration ###########################################################
-if page == "Démonstration" or page == "(ToutesLesPages)" :
+########################################################## Démonstration ###########################################################
+# Le mode "(ToutesLesPages)" sert à exporter le rapport en PDF, la démo ne pourra pas fonctionner.
+# On affiche donc un texte expliquant que la démo n'est que dans le streamlit.
+if page == "(ToutesLesPages)":
+  st.write("## Démonstration")
+  '''Cette section est dédiée à la démonstration des résultats obtenus par les modèles.
+  
+  Elle fonctionne dans le streamlit.'''
+
+if page == "Démonstration":
   st.write("## Démonstration")
 
   # -----------------------------
@@ -1094,6 +1102,18 @@ if page == "Démonstration" or page == "(ToutesLesPages)" :
         
         st.dataframe(styled_df)
       
+      st.write("### Statistiques des modèles")
+      stats_df = pd.DataFrame({
+          "Modèle": [col.replace("prdtypecode_", "Modèle ") for col in cols_to_show],
+          "Succès": [st.session_state.stats[col]["success"] for col in cols_to_show],
+          "Total": [st.session_state.stats[col]["total"] for col in cols_to_show],
+          "Taux de réussite (%)": [
+              round(st.session_state.stats[col]["success"] / st.session_state.stats[col]["total"] * 100, 1)
+              if st.session_state.stats[col]["total"] > 0 else 0
+              for col in cols_to_show
+          ]
+      })
+      st.dataframe(stats_df)
 
 ########################################################## Difficultés et prospective ###########################################################
 if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
