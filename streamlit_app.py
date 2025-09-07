@@ -1124,13 +1124,19 @@ if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
   1. La plus **importante** concerne le **temps** de calcul : le traitement du **texte** et des **images** nécéssite de la capacité **GPU** et nos PC ne sont pas adaptés pour.
   Nous avons donc dû utiliser des créneaux **google colab** pour avoir une capacité de calcul suffisante. \n Quelques exemples de **durée** de calcul : \n '''
   '''`Word2Vec-DNN Keras`: [PC **CPU** Standard: **~500min** / Google Colab **GPU** T4: **~20min** => Coefficient Multiplicateur d'**~25**]'''
+  '''Les temps d'entrainement des modèles sur images se comptent en jours ce qui limite le nombre d'itérations pour les tests et l'ajustement des modèles'''
   '''
   2. La **contrainte** induite par la **multitude** des outils, techniques et méthodes à notre disposition en tant que Data Scientists => génère une **quantité** globale de travaux de modélisation et de tests non négligeable nécessitant à un moment ou à un autre de choisir 
   et donc de **renoncer** à certains par **limitation** en termes de bande passante.
   
-  3. La **complexité** de la **fusion** des travaux et du packaging générée par la **diversité** des environnements de développement dont dispose chacun des membres de l'équipe projet
+  3. Malgré l'utilisation des environnements virtuels, la **complexité** de la **fusion** des travaux et du packaging générée par la **diversité** des environnements de développement dont dispose chacun des membres de l'équipe projet
+  
+  Notons qu'un point intéressant a été relevé lors de de la mise en place des différents modèles :le **fort écart de taille entre fichiers modèles**, en fonction des techniques utilisées, pour des performances obtenues similaires, à titre d'exemple pour le texte, le **LightGradientBoostingClassifier 7.3Mo**, performance : 0.75 - Le **RandomForest 3.7Go**, performance : 0.74
+
+
   '''
 
+  
 
 ########################################################## Conclusion ###########################################################
 if page == "Conclusion" or page == "(ToutesLesPages)" :
@@ -1143,7 +1149,8 @@ if page == "Conclusion" or page == "(ToutesLesPages)" :
   **pas répondre** à la problématique de classification étant **dépourvues** d'éléments véhiculant le **contexte** ainsi que la **sémantique** inhérant à chacun des documents issu du jeu de données  
   - Des Modèles de **Machine Learning** et de **Deep Learning** exploitant des techniques d'**analyse et de pré-processing** des données textuelles, d'**extraction** et de **quantification** des éléments **contextuels** cachés dans les documents
   ont permis de répondre à la problématique de classification et de nous offrir des scores de **performance** relativement **bons**
-  - _**[A Compléter par Nicolas]**_ Analyser des images avec un CNN classique puis un modèle VGG-16.
+  - Des modèles de **Deep Learning**, dont un mettant en oeuvre un **transfert learning**, ont été mis en place pour exploiter les **données images**.
+  Les performances obtenues sur les images sont inférieures à celles obtenues sur les données textuelles.
   
   Les différentes **itérations** nous ont permis d'**approfondir** nos connaissances sur le fonctionnement intrinsèque à chacun des modèles, 
   d'évaluer leur **performance** eu égard à l'**efficacité** affichée et in fine d'aboutir à des résultats qui nous semblaient **satisfaisants**
