@@ -82,6 +82,36 @@ st.sidebar.title("Sommaire")
 pages=["Introduction", "Exploration des données", "Modélisation - métadonnées", "Modélisation - images", "Modélisation - textes", "Fusion par vote", "Démonstration", "Difficultés et prospective", "Conclusion", "(ToutesLesPages)"]
 page=st.sidebar.radio("Aller vers", pages)
 
+st.markdown("""
+<style>
+.styled-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 1em;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 10px #ddd;
+}
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+.styled-table th, .styled-table td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+}
+.styled-table tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 ########################################################## Introduction ###########################################################
@@ -143,7 +173,7 @@ Les données sont analysées à l'aide de notebooks python et scripts bash, disp
 L'analyse des fichiers CSV est dans le fichier Rapport exploration des données - `Projet Rakuten.xlsx` basé sur le template fourni.
 
 ### Fichier X_train_update.csv
-infos :\n
+Infos :\n
 Index: **84916** entries, **0** to **4915**\n
 Data columns (total **4** columns):\n
 ` #   Column       Non-Null Count  Dtype `\n
@@ -159,7 +189,7 @@ Data columns (total **4** columns):\n
 `productid          0`\n
 `imageid            0`\n
 
-Près d’**1/3** des lignes ont leur colonne `description` vide.
+Près **d'un tiers** des lignes ont leur colonne `description` vide.
 
 ### Fichier Y_train_CVw08PX.csv 
 Infos :\n
@@ -216,7 +246,7 @@ On a autant de lignes que dans le fichier `X_train_update.csv`, ce fichier conti
   '''Ce tableau nous renvoie une distribution **non uniforme** des catégories : la catégorie **2583** embarque à elle seule
   **12.02%** des observations tandis que chacune des **26** catégories restantes se partagent le reliquat du dataset 
   dans une proportion allant de **~1%** à **~6%** 
-  => il s'agit donc d'un problème de **classification déséquilibrée**'''
+  => il s'agit donc d'un problème de **classification déséquilibrée**.'''
   
 
   st.write("#### feature (designation)")
@@ -309,12 +339,12 @@ En outre, le maximum de nombre de valeurs distinctes pour chaque **md5sum** est 
 Dans X_train, ajout des informations suivantes :
 - `designation_lang` : langue détectée par la bibliothèque _langdetect_. Ne semble pas très fiable, rien que dans les 1ères lignes on voit des erreurs.
 - `description_lang` : langue détectée par la bibliothèque _langdetect_
-- `lang` : langue détectée par la bibliothèque _langdetect_ sur la concaténation de designation + description
-- `designation_len` : en nb de caractères
-- `description_len` : en nb de caractères
-- `image_real_width` : en pixels
-- `image_real_height` : en pixels
-- `image_ratio` : largeur / hauteur (width / height)
+- `lang` : langue détectée par la bibliothèque _langdetect_ sur la concaténation de designation + description.
+- `designation_len` : en nb de caractères.
+- `description_len` : en nb de caractères.
+- `image_real_width` : en pixels.
+- `image_real_height` : en pixels.
+- `image_ratio` : largeur / hauteur (width / height).
 
 Le X_train enrichi est stocké dans `data/processed`.
 
@@ -455,21 +485,21 @@ for fichier in dossier.glob("*.jpg"):
 
   '''## Enrichissement des données - Modélisation exploitant la sémantique
   Dans X_train, ajout des informations suivantes :
-- `designation_description` : concaténation des champs `designation` et `description`
-- `lang` : langue détectée par la bibliothèque `langdetect`
+- `designation_description` : concaténation des champs `designation` et `description`.
+- `lang` : langue détectée par la bibliothèque `langdetect`.
 
   La Langue est la **caractéristique** primordiale permettant de capturer la **sémantique** de la donnée textuelle.
-  Elle permet notamment d'être **spécifique** dans les différentes tâches de **préprocessing** à appliquer à cette dernière.
+  Elle permet notamment d'être **spécifique** dans les différentes tâches de **preprocessing** à appliquer à cette dernière.
   Néanmoins, les **premiers scénarios** d'analyse et de modélisation basés sur une discrimination linguistique de la donnée textuelle 
   ont permis de conclure qu'une **généralisation** du modèle était quasi impossible à atteindre compte tenu de la **répartition** nettement **déséquilibrée** des échantillons 
-  entre les différentes langues => ce **cas de figure** nous a contraint à opter pour une modélisation **non-discriminatoire**
+  entre les différentes langues => ce **cas de figure** nous a contraint à opter pour une modélisation **non-discriminatoire**.
   
   **Point d'Attention** : la fonction `langdetect` affiche une **marge d'erreurs** relative d'**~3%** 
   ajoutant une part d'**aléatoire**  d'**~1% max.** empêchant une stricte **reproductibilité** des résultats.
   
-  Le dataset affiche un total de **31 Langues**.'''
+  Le dataset affiche un total de **31 langues**.'''
   
-  '''#### `Liste des langues Avec correspondance` langdetect vs. nltk'''
+  '''#### `Liste des langues avec correspondance` langdetect vs. nltk'''
   
   st.dataframe(lang_list_correspondance_df)
   
@@ -505,22 +535,24 @@ if page == "Modélisation - métadonnées" or page == "(ToutesLesPages)" :
 
   '''
   Plusieurs phases ont eu lieu : 
-  1. Utilisation basique du modèle
-  2. Ajout de métadonnées comme celles provenant de l'**OCR** (uniquement le nombre de caractères reconnus dans une image)
-  3. Test de `RandomOverSampler` et de `RandomUnderSampler`
-  4. Test de `GirdSearchCV` et de `RandomRandomizedSearchCV`
-  5. Unification avec `StackingClassifier`
+  1. Utilisation basique du modèle.
+  2. Ajout de métadonnées comme celles provenant de l'**OCR** (uniquement le nombre de caractères reconnus dans une image).
+  3. Test de `RandomOverSampler` et de `RandomUnderSampler`.
+  4. Test de `GirdSearchCV` et de `RandomRandomizedSearchCV`.
+  5. Unification avec `StackingClassifier`.
 
-  Les scores ont généralement augmenté au fur et à mesure, et varient généralement de **10** à **35 %**. Ces chiffres sont à comparer avec :
-  - **3.70 %** : l'aléatoire car il y a **27** catégories
+  Les scores ont généralement augmenté au fur et à mesure, et varient globalement de **10** à **35 %**. Ces chiffres sont à comparer avec :
+  - **3.70 %** : l'aléatoire car il y a **27** catégories.
   - **12.02 %** : le poids de la classe la plus importante, si on ne prédisait qu'elle.
 
-  Nous avons laissé dans le tableau une colonne de résultats érronés suite à une mauvaise génération de la métadonnée "ocr_len" : 3 modèles donnaient un résultat supérieur à 98 %.
+  Nous avons laissé dans le tableau une colonne de résultats erronés suite à une mauvaise génération de la métadonnée "ocr_len" :
+  3 modèles donnaient un résultat supérieur à 98 %.
+  L'erreur ici était un "classique" : le mélange de données de train et de test.
 
   **Analyse :**
 
   Ces résultats n'utilisent que les métadonnées et pas les données elles-mêmes.
-  Même s'ils permettent de faire beaucoup mieux que l'aléatoire, ils plafonnent à 34 %, ce qui est largement insuffisant pour une utilisation en production.
+  Même s'ils permettent de faire beaucoup mieux que l'aléatoire, ils plafonnent à 34 %, ce qui est probablement insuffisant pour une utilisation en production.
 
   Il doit être possible d'améliorer ce score en ajoutant plus de métadonnées, comme :
   - Les unités présentes dans les textes : g, kg, m, mm, W, oz, ...
@@ -531,9 +563,9 @@ if page == "Modélisation - métadonnées" or page == "(ToutesLesPages)" :
   - Les niveaux de couleurs RGB des images
   - etc.
 
-  Cependant nous ne creusons pas cette piste, car le gain serait probablement marginal.
+  Cependant nous ne creusons pas cette piste, car nous préférons passer aux analyses d'images et de textes (voir les chapitres suivants).
 
-  Une autre idée pourrait être, en se basant sur cette analyse des métadonnées, de proposer à l'utilisateur les 3 catégories les plus probables. Dans le cadre d'un projet réel, ce serait à discuter avec le client.
+  À noter que ce score de 34 % pourrait quand même être utilisable : en se basant sur cette analyse des métadonnées, on pourrait proposer à l'utilisateur qui met en ligne un produit à vendre les 3 catégories les plus probables, au lieu d'une longue liste de 27 catégories. Dans le cadre d'un projet réel, ce serait à discuter avec le client.
 
   Ce travail sur les métadonnées nous a permis de pratiquer différents modèles, de chercher à générer des métadonnées, de combiner des modèles (avec le StackingClassifier), de voir les intérêts ou limites de l'optimisation (GridSearchCV).
   Les pages suivantes sont axées sur les images et les textes.
@@ -554,29 +586,38 @@ En premier lieu nous créons un jeu de données qui sera utilisé pour « train
 
 Compte tenu du fait que le jeu de données est déséquilibré mais également que nos capacités de calcul sont limitées,
   un sous-échantillonnage du jeu de données est effectué de façon à réduire le nombre d'échantillons par classe à
-  celui de la classe la moins représentée soit 764 soit 20628 images au total
+  celui de la classe la moins représentée (764 images), soit 20&nbsp;628 images au total (764 x 27).
 '''
   
   X_train_df = pd.read_csv(os.path.join(DATA_DIR_RAW, "X_train_update.csv"), index_col=0)
   Y_train_df = pd.read_csv(os.path.join(DATA_DIR_RAW, "Y_train_CVw08PX.csv"), index_col=0)
 
+  # st.write('Classes échantillons init :',Y_train_df.value_counts().sort_index())
+  st.write('Classes échantillons init :')
 
-  st.write('Classes échantillons init:',Y_train_df.value_counts().sort_index())
+  # st.html(Y_train_df.value_counts().sort_index().reset_index().to_html(classes="styled-table"))
+  df_tmp = Y_train_df.value_counts().sort_index().reset_index()
+  df_tmp.columns = ["prdtypecode", "count"]
+  st.html(df_tmp.to_html(classes="styled-table", index=False))
 
   rUs = RandomUnderSampler()
   X_train_df_ru, Y_train_df_ru = rUs.fit_resample(X_train_df, Y_train_df)
   
-  st.write('Classes échantillons après sous échantillonnage undersampled :', Y_train_df_ru.value_counts().sort_index())
+  # st.write('Classes échantillons après sous échantillonnage undersampled :', Y_train_df_ru.value_counts().sort_index())
+  st.write('Classes échantillons après sous échantillonnage undersampled :')
+  df_tmp = Y_train_df_ru.value_counts().sort_index().reset_index()
+  df_tmp.columns = ["prdtypecode", "count"]
+  st.html(df_tmp.to_html(classes="styled-table", index=False))
 
   '''
   Malgré ce sous-échantillonnage pour des raisons de temps de calcul, il a été décidé de réduire d'avantage le jeu de données et de le découpé comme suit:
   
-  - 300 images par classe pour l'entrainement (train) t+ validation
+  - 300 images par classe pour l'entrainement (train) + validation
   - 60 images par classe pour le test
   
   Pour chacun de ces deux jeux de données, l’arborescence des images est organisée avec un répertoire par classe.
   
-  Les données peuvent ainsi être lues glace à la méthode « image_dataset_from_directory » de « keras.utils ». C’est cette même méthode qui permet de séparer « train »  et « validation » lors du chargement des images.
+  Les données peuvent ainsi être lues glace à la méthode « image_dataset_from_directory » de « keras.utils ». C’est cette même méthode qui permet de séparer « train » et « validation » lors du chargement des images.
   
   Voici un aperçu des images et du code de classe associé, extrait du jeu train :
   '''
@@ -588,9 +629,9 @@ Compte tenu du fait que le jeu de données est déséquilibré mais également q
   
   '''
   L'utilisation de Random Forest, prévue initialement pour servir de référence, a été abandonnée du fait de problèmes mémoire
-  liés à l'absence d'option de traitement par lot dans l'implémentation de Random Forest disponible
+  liés à l'absence d'option de traitement par lot dans l'implémentation de Random Forest disponible.
   
-  La modélisation a donc été testée sur des CNN qui permettent les traitements par lot. :
+  La modélisation a donc été testée sur des CNN qui permettent les traitements par lot :
   
   - Un CNN "from scratch" pour référence :
   
@@ -601,7 +642,7 @@ Compte tenu du fait que le jeu de données est déséquilibré mais également q
   
   '''
   Nous avons observé lors de l'entrainement que la précision augmentait plus significativement sur le jeu de validation
-  que sur le jeu d'entrainement
+  que sur le jeu d'entrainement :
   '''
   
   st.image("courbes_learn_CNN_images_fs.png")
@@ -621,24 +662,24 @@ Compte tenu du fait que le jeu de données est déséquilibré mais également q
   
   '''
   
-  - Un transfert learning basé sur vgg16 CNN :
+  - Un transfert learning basé sur VGG16 CNN :
   
-  L'objectif est de bénéficier de l'entrainement de vgg16 sur un volume d'images important.
-  Ici, outre les couches d'augmentation, nous avons laissé figées les couches de vgg16 et avons ajouté 3 couches denses
-  en vue de faire évoluer la classification de vgg16 vers celle attendue. L'architecture est la suivante:
+  L'objectif est de bénéficier de l'entrainement de VGG16 sur un volume d'images important.
+  Ici, outre les couches d'augmentation, nous avons laissé figées les couches de VGG16 et avons ajouté 3 couches denses
+  en vue de faire évoluer la classification de VGG16 vers celle attendue. L'architecture est la suivante :
   '''
   
   st.image("architecture_CNN_images_tl.png")
   
   '''
   Nous avons observé lors de l'entrainement que la précision augmentait plus significativement sur le jeu de validation
-  que sur le jeu d'entrainement
+  que sur le jeu d'entrainement .
   '''
   
   st.image("courbes_learn_CNN_images_tl.png")
   
   '''
-  Sur le jeu de test, la précision obtenue est de 0.31:
+  Sur le jeu de test, la précision obtenue est de 0.31 :
   '''
   
   st.image("score_CNN_images_tl_test.png")
@@ -669,11 +710,15 @@ if page == "Modélisation - textes" or page == "(ToutesLesPages)" :
   st.write("### Approche Globale")
   '''
  
-- Nettoyage des Valeurs **Manquantes** présentes dans le champ `description`
+- Nettoyage des Valeurs **Manquantes** présentes dans le champ `description`.
 - Preprocessing des données textuelles via l'application successive de **2 couches** de `stopwords` et de **3** couches de `regex` 
-    tenant compte des **spécificités** de chacune des **langues** et de la **qualité** des données retournées pour chacune d'entre elles
+    tenant compte des **spécificités** de chacune des **langues** et de la **qualité** des données retournées pour chacune d'entre elles.
    '''
   st.dataframe(X_processed.head(10))
+  # df_tmp = X_processed.head()
+  # df_tmp.columns = ["prdtypecode", "count"]
+  # st.html(df_tmp.to_html(classes="styled-table", index=False))
+
   '''
 
 - **Affinage** Artificiel de la fonction `langdetect` via l'application d'une **2nde couche** de détection suivie par un **nettoyage**
@@ -826,13 +871,13 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   '''
   Nous avons vu que plusieurs modèles ont été mis au point pour exploiter le texte, les métadonnées et les images disponibles.
   L'étape de vote consiste à fusionner ces modèles en vue d'obtenir un modèle fusionné aux performances supérieures à celles du meilleur modèle
-  obtenu préalablement, le modèle de texte Word2Vec-DNN
+  obtenu préalablement, le modèle de texte Word2Vec-DNN.
 
-  Un "hard voting " ne semble a priori pas approprié ici car les performances des modèles modèles sont très hétérogènes.
+  Un "hard voting " ne semble a priori pas approprié ici car les performances des modèles sont très hétérogènes.
 
   Il est néanmoins testé en plus d'un "soft voting" qui pondère les résultats des différents modèles par leur précision moyenne connue a priori.
 
-  La fonction de voting est implémentée via un passage en encodage binaire comme suit:
+  La fonction de voting est implémentée via un passage en encodage binaire comme suit :
   '''
   st.code('''
   def Voting(list_y, weight = None):
@@ -856,8 +901,8 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   
   '''
   Le résultat avec "hard voting" appliqué aux résultats sur le jeu de test des trois modèles de texte
-  Word2Vec_DNN, Word2Vec_RF, LightGBM_mod, au modèle Meta_XGBClassifier et au modèle image VVG16_TL
-  est le suivant:
+  Word2Vec_DNN, Word2Vec_RF, LightGBM_mod, au modèle Meta_XGBClassifier et au modèle image VGG16_TL
+  est le suivant :
   '''
   st.write("#### **`Rapport de classification`**")
   st.image("score_voting_sans_ponderation.png")
@@ -866,7 +911,7 @@ if page == "Fusion par vote" or page == "(ToutesLesPages)" :
   st.image("confusion_voting_sans_ponderation.png")
   
   '''
-  En mode "soft voting" il est le suivant, lègèrement meilleur qu'en "hard voting":
+  En mode "soft voting" il est le suivant, lègèrement meilleur qu'en "hard voting" :
   '''
   st.write("#### **`Rapport de classification`**")
   st.image("score_voting_avec_ponderation.png")
@@ -1121,18 +1166,19 @@ if page == "Difficultés et prospective" or page == "(ToutesLesPages)" :
   '''
   Nous avons naturellement rencontré plusieurs difficultés au cours de ce projet :
 
-  1. La plus **importante** concerne le **temps** de calcul : le traitement du **texte** et des **images** nécéssite de la capacité **GPU** et nos PC ne sont pas adaptés pour.
-  Nous avons donc dû utiliser des créneaux **google colab** pour avoir une capacité de calcul suffisante. \n Quelques exemples de **durée** de calcul : \n '''
-  '''`Word2Vec-DNN Keras`: [PC **CPU** Standard: **~500min** / Google Colab **GPU** T4: **~20min** => Coefficient Multiplicateur d'**~25**]'''
-  '''Les temps d'entrainement des modèles sur images se comptent en jours ce qui limite le nombre d'itérations pour les tests et l'ajustement des modèles'''
-  '''
+  1. La plus **importante** concerne le **temps** de calcul : le traitement du **texte** et des **images** nécessite de la capacité **GPU** et nos PC ne sont pas adaptés.
+  Nous avons donc dû utiliser des créneaux **google colab** pour avoir une capacité de calcul suffisante. \n Quelques exemples de **durée** de calcul : \n
+      `Word2Vec-DNN Keras`: [PC **CPU** Standard: **~500min** / Google Colab **GPU** T4: **~20min** => Coefficient Multiplicateur d'**~25**]
+      Les temps d'entrainement des modèles sur images se comptent en jours ce qui limite le nombre d'itérations pour les tests et l'ajustement des modèles.
+  
   2. La **contrainte** induite par la **multitude** des outils, techniques et méthodes à notre disposition en tant que Data Scientists => génère une **quantité** globale de travaux de modélisation et de tests non négligeable nécessitant à un moment ou à un autre de choisir 
   et donc de **renoncer** à certains par **limitation** en termes de bande passante.
   
-  3. Malgré l'utilisation des environnements virtuels, la **complexité** de la **fusion** des travaux et du packaging générée par la **diversité** des environnements de développement dont dispose chacun des membres de l'équipe projet
+  3. Malgré l'utilisation des environnements virtuels, la **complexité** de la **fusion** des travaux et du packaging générée par la **diversité** des environnements de développement dont dispose chacun des membres de l'équipe projet.
   
-  Notons qu'un point intéressant a été relevé lors de de la mise en place des différents modèles :le **fort écart de taille entre fichiers modèles**, en fonction des techniques utilisées, pour des performances obtenues similaires, à titre d'exemple pour le texte, le **LightGradientBoostingClassifier 7.3Mo**, performance : 0.75 - Le **RandomForest 3.7Go**, performance : 0.74
-
+  Notons qu'un point intéressant a été relevé lors de de la mise en place des différents modèles :
+  le **fort écart de taille entre fichiers modèles**, en fonction des techniques utilisées, pour des performances obtenues similaires.
+  À titre d'exemple pour le texte, le **LightGradientBoostingClassifier 7.3Mo**, performance : 0.75 - Le **RandomForest 3.7Go**, performance : 0.74.
 
   '''
 
@@ -1146,10 +1192,10 @@ if page == "Conclusion" or page == "(ToutesLesPages)" :
   de certaines des techniques qui nous ont été introduites dans le domaine du **text mining** et de la **classification d'images**.
 
   - Des Premiers Modèles de **Machine Learning** exploitant les seules **métadonnées** construites à partir du jeu de données ont permis de conclure qu'à elles seules ces nouvelles **features** ne pouvaient
-  **pas répondre** à la problématique de classification étant **dépourvues** d'éléments véhiculant le **contexte** ainsi que la **sémantique** inhérant à chacun des documents issu du jeu de données  
+  **pas répondre** à la problématique de classification étant **dépourvues** d'éléments véhiculant le **contexte** ainsi que la **sémantique** inhérant à chacun des documents issus du jeu de données.
   - Des Modèles de **Machine Learning** et de **Deep Learning** exploitant des techniques d'**analyse et de pré-processing** des données textuelles, d'**extraction** et de **quantification** des éléments **contextuels** cachés dans les documents
-  ont permis de répondre à la problématique de classification et de nous offrir des scores de **performance** relativement **bons**
-  - Des modèles de **Deep Learning**, dont un mettant en oeuvre un **transfert learning**, ont été mis en place pour exploiter les **données images**.
+  ont permis de répondre à la problématique de classification et de nous offrir des scores de **performance** relativement **bons**.
+  - Des modèles de **Deep Learning**, dont un mettant en œuvre un **transfert learning**, ont été mis en place pour exploiter les **données images**.
   Les performances obtenues sur les images sont inférieures à celles obtenues sur les données textuelles.
   
   Les différentes **itérations** nous ont permis d'**approfondir** nos connaissances sur le fonctionnement intrinsèque à chacun des modèles, 
@@ -1157,7 +1203,7 @@ if page == "Conclusion" or page == "(ToutesLesPages)" :
   au vu du **temps** alloué à l'exercice.
 
   ### À propos
-  Projet DS - Promotion Novembre 2024 en continu
+  Projet DS - Promotion novembre 2024 en continu
 
   Auteurs :
   - Nadine ASSAF - https://www.linkedin.com/in/nadine-assaf-34a74a49/
