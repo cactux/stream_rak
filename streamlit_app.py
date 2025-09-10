@@ -45,11 +45,28 @@ y = pd.read_csv(os.path.join(DATA_DIR_RAW, "Y_train_CVw08PX.csv"), index_col=0)
 y = y.rename({"prdtypecode": "**code produit**"}, axis = 1)
 # X = X.merge(y, on = "index")
 X_processed = pd.read_csv(os.path.join(DATA_DIR_RAW, "X_train_df_reg3.csv"), index_col=0)
-X_processed = X_processed.rename({"designation_description_reg3": "**Données Textuelles Pré-Traitées**"}, axis = 1)
+X_processed = X_processed.rename({"designation_description_reg3": "Données Textuelles Pré-Traitées"}, axis = 1)
 lang_list_correspondance_np = np.genfromtxt("lang_list_correspondance.csv", dtype = None)
-lang_list_correspondance_df = pd.DataFrame(data = lang_list_correspondance_np).rename({0: "**référentiel langdetect**", 1: "**référentiel nltk**"}, axis = 1)
-lang_dist = pd.read_csv("lang_dist.csv", index_col = 0).rename({"0": "**proportion**"}, axis = 1)
-lang_dist.index.name = "**langue**"
+lang_list_correspondance_df = pd.DataFrame(data = lang_list_correspondance_np).rename({0: "référentiel langdetect", 1: "référentiel nltk"}, axis = 1)
+lang_dist = pd.read_csv("lang_dist.csv", index_col = 0).rename({"0": "proportion"}, axis = 1)
+lang_dist.index.name = "langue"
+
+def dataframe_to_truncated_html(df, max_chars=80, index=False):
+  """
+  Retourne le code HTML d'un DataFrame où chaque cellule est tronquée à max_chars caractères.
+  Si le texte dépasse max_chars, il est coupé et '[...]' est ajouté à la fin.
+  """
+
+  def truncate(val):
+      val_str = str(val)
+      if len(val_str) > max_chars:
+          return html.escape(val_str[:max_chars] + "[...]")
+      return html.escape(val_str)
+
+  # Appliquer la troncature à tout le DataFrame
+  df_trunc = df.applymap(truncate)
+  # Générer le HTML avec la classe pour le style
+  return df_trunc.to_html(classes="styled-table", index=index, escape=False)
 
 # X_ocr = pd.read_csv(os.path.join(DATA_DIR_PROCESSED, "ocr_images_train.csv"), index_col=0)
 # X_ocr.fillna("", inplace=True)
@@ -87,7 +104,7 @@ st.markdown("""
 .styled-table {
     border-collapse: collapse;
     margin: 10px 0;
-    font-size: 1em;
+    font-size: 0.8em;
     font-family: 'Segoe UI', Arial, sans-serif;
     min-width: 400px;
     box-shadow: 0 0 10px #ddd;
@@ -202,17 +219,22 @@ Data columns (total 1 columns):\n
 On a autant de lignes que dans le fichier `X_train_update.csv`, ce fichier contient la cible à prédire : le **code catégorie** (type de produit).
 
 '''
+
   st.write("#### Features (X)")
   '''
   Les colonnes `productid` et `imageid` ne portent pas de signification, ce sont seulement des identifiants.
   '''
   st.write(X.shape)
-  st.dataframe(X.head(5))
+  # st.dataframe(X.head(5))
+  st.html(dataframe_to_truncated_html(X.head()))
   # st.dataframe(X.describe())
+
+
 
   st.write("#### target (y)")
   st.write(y.shape)
-  st.dataframe(y.head(5))
+  # st.dataframe(y.head(5))
+  st.html(dataframe_to_truncated_html(y.head()))
   # st.dataframe(y.describe())
 
   # Nombre de produits par catégorie
@@ -239,9 +261,10 @@ On a autant de lignes que dans le fichier `X_train_update.csv`, ce fichier conti
   st.image(buf)
   
   '''
-  #### `Proportion des produits par catégorie`'''
+  #### Proportion des produits par catégorie'''
  
-  st.write(y.value_counts(ascending = False, normalize = True).map("{:0.2%}".format), "\n")
+  # st.write(y.value_counts(ascending = False, normalize = True).map("{:0.2%}".format), "\n")
+  st.html(dataframe_to_truncated_html(y.value_counts(ascending = False, normalize = True).map("{:0.2%}".format).to_frame().reset_index()))
   
   '''Ce tableau nous renvoie une distribution **non uniforme** des catégories : la catégorie **2583** embarque à elle seule
   **12.02%** des observations tandis que chacune des **26** catégories restantes se partagent le reliquat du dataset 
@@ -499,14 +522,16 @@ for fichier in dossier.glob("*.jpg"):
   
   Le dataset affiche un total de **31 langues**.'''
   
-  '''#### `Liste des langues avec correspondance` langdetect vs. nltk'''
+  '''#### Liste des langues avec correspondance langdetect vs. nltk'''
   
-  st.dataframe(lang_list_correspondance_df)
-  
-  '''#### `Distribution des langues`'''
+  # st.dataframe(lang_list_correspondance_df)
+  st.html(dataframe_to_truncated_html(lang_list_correspondance_df))
+
+  '''#### Distribution des langues'''
   '''La langue **française** est représentée dans plus de **60%** des échantillons et 
   couvre avec la langue **anglaise** **~85%** de la plage des données textuelles.'''
-  st.write(lang_dist)
+  # st.write(lang_dist)
+  st.html(dataframe_to_truncated_html(lang_dist, index=True))
 
 
 
@@ -714,7 +739,8 @@ if page == "Modélisation - textes" or page == "(ToutesLesPages)" :
 - Preprocessing des données textuelles via l'application successive de **2 couches** de `stopwords` et de **3** couches de `regex` 
     tenant compte des **spécificités** de chacune des **langues** et de la **qualité** des données retournées pour chacune d'entre elles.
    '''
-  st.dataframe(X_processed.head(10))
+  # st.dataframe(X_processed.head(10))
+  st.html(dataframe_to_truncated_html(X_processed.head(10)))
   # df_tmp = X_processed.head()
   # df_tmp.columns = ["prdtypecode", "count"]
   # st.html(df_tmp.to_html(classes="styled-table", index=False))
